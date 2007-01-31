@@ -1,0 +1,5 @@
+assay	amplicon	min	max	type	color
+P034	Xp22	100	150	control	blue
+P034	Xq11.2	150	200	control	red
+P034	Xq28-1	260	270	control	green
+P034	Xq28-2	300	401	control	yellow

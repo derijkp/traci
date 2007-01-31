@@ -1,0 +1,222 @@
+############################
+#
+# settings
+#
+############################
+
+array config::grid {
+	columns 1
+	rows 1
+}
+
+var config::columns_sel {
+	index
+	Act
+	ILS
+	meanH
+	part
+	well
+	individual
+	str_marker
+	gs_read
+	experiment
+	chromatogram
+}
+
+array config::dyecolor {
+	blue blue
+	green SpringGreen4
+	red red
+	yellow black
+	orange orange
+	inv_blue yellow
+	inv_green yellow
+	inv_red yellow
+	inv_yellow yellow
+	inv_orange black
+}
+
+array config::bincolor {
+	match #60dff8
+	smatch #79afdb
+	nomatch #ffaeb8
+	pac #fffa61
+	pool_default #60dff8
+	pool_uncertain #fffa61
+	pool_notfound #ffaeb8
+	pool_changed #ffaeb8
+	pool_unknown gray80
+	goodcontrol gray60
+	badcontrol gray90
+}
+
+array config::color {
+	score #60dff8
+	goodtest #fffa61
+	badtest #fffa61
+	goodcontrol gray60
+	badcontrol gray90
+	qgood #0099ff
+	qmiddle #ffcc66
+	qbad #ff3333
+	activebg gray65
+	activeplotbg white
+	lowpeaks_bg #ffd1d7
+	lowpeaks_border gray85
+	full_deletion #FF8C8C
+	half_deletion #FFB4B4
+	unk_deletion #FFDCDC
+	unk_duplication #B4DCFF
+	half_duplication #78C8FF
+	full_duplication #5AB4FF
+	dos_bg white
+	dos_grayzone gray95
+	dos_normal gray75
+	blue-area #ff0000
+	green-area orange
+	yellow-area red
+	red-area blue
+	orange-area green
+	reference_line gray80
+}
+
+array config::checkbutton {
+	addarea 0
+	addheight 0
+	intradetails 0
+	intrasummary 1
+	interref 0
+	intertest 0
+	dosref 0
+	dostest 1
+}
+
+array config::color {
+	red-area blue
+	goodtest #fffa61
+	yellow-area red
+	goodcontrol #999999
+	lowpeaks_border gray85
+	activeplotbg #ffffff
+	blue-area #7bbfff
+	dos_bg white
+	half_duplication #78c8ff
+	lowpeaks_bg #ffe4ea
+	full_deletion #ff8c8c
+	green-area orange
+	badtest #fdffaf
+	badcontrol #e2e2e2
+	qmiddle #ffcc66
+	qbad #ff3333
+	unk_duplication #b4dcff
+	unk_deletion #ffdcdc
+	orange-area green
+	qgood #0099ff
+	dos_grayzone gray95
+	activebg #a5a5a5
+	reference_line gray80
+	dos_normal gray75
+	full_duplication #5ab3ff
+	half_deletion #ffb4b4
+	overlayHold grey
+}
+
+array config::colname {
+	label Label
+	index Index
+	q Q
+	experiment exp
+	str_marker Marker
+	marker Marker
+	chromatogram File
+	gs_read Read
+	id	Read
+	part P
+	individual Sample
+	well Well
+	machine Machine
+}
+
+var config::patternlist {
+	"All"
+}
+
+array config::font {
+	label_font {arial 8 {normal roman}}
+	binname {arial 6 {normal roman}}
+}
+
+array config::stds {
+}
+
+array config::settings {
+}
+array config::temp {
+	pattern All
+}
+
+array config::default {
+	ip {143.169.30.70}
+	url {tech/TracI-version}
+	showtype Dosage
+	min_height 750
+	alignwindow 0.3
+	lowpeaks 500
+	signalwidth 1
+	showamp Test
+	help_state 1
+	testforupdate 1
+	min_score 0.25
+	file2analyze selected
+	gridbrowser scroller
+	assaydir {}
+	datadir {}
+	exportdir {}
+	zoomrange 20
+	sortorder increasing
+	reference_shift 1
+	reference_linewidth 2
+	maxdos 10
+	ymin 800
+	ymax 2.3
+	glob_well {}
+	active_type LGV
+	binrotation 90
+	mindos 2.3
+	glob_reference control
+	glob_individual {}
+	listbox_state 0
+	winlogo TracI.ico
+	winlogos Traci-small.bmp
+	linlogo Traci-16x16x256.bmp
+	q2penalty 0.1
+	q2range 0.2
+	changeILS Disabled
+	hide_nonactive Enabled
+	showbinOnSi Enabled
+	overlayHold Disabled
+	check4update Enabled
+	autozoom Enabled
+	showlabel Enabled
+	reference Enabled
+	showresult Auto
+	showresult-list {Auto Area Height None}
+	starthelp Enabled
+	reanalyse Enabled
+	restandard Disabled
+	showstandard Enabled
+	showbin Enabled
+	show ShowAll
+	show-list {ShowAll One-by-one}
+	showbinname Test
+	showbinname-list {Control Test All None}
+	assaytype area
+	assaytype-list {height area}
+	zoom2 All
+	zoom2-list {All Test Control}
+	guide Enabled
+	legend individual
+	legend-list {read individual}
+	showlow Enabled
+}
+

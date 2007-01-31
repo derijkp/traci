@@ -1,0 +1,503 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>TracI Manual</title>
+</head>
+<body>
+<br>
+<h1><a name="top"></a><img alt="TracI-log"
+ src="pics/all/TracI-logo.png" style="width: 40px; height: 43px;"
+ align="top"> TracI Manual v1.0</h1>
+<span style="font-weight: bold;"></span><br>
+<hr style="width: 100%; height: 2px;">
+<h3><br>
+</h3>
+<h3><a name="1._Installation"></a>1. <a href="#installation">Installation</a></h3>
+<h3><a name="2._TracI:_an_overview"></a>2. <a href="#overview">TracI: an
+overview</a></h3>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">2.1
+<a href="#overview-background">Background</a><br>
+2.2 <a href="#overview-soft">The software</a></span><span
+ style="font-weight: bold;"></span><br>
+<span style="font-weight: bold;"><a href="#comment"></a></span></div>
+<h3><a name="3._Import"></a>3. <a href="#import">Import</a></h3>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">3.1 <a
+ href="#import-open">Selecting the data folder and the assay
+description file</a></span><br style="font-weight: bold;">
+<span style="font-weight: bold;">3.2 <a href="#import-standard">Unknown
+internal lane standard</a></span><br>
+</div>
+<h3><a name="4._The_chromatogram_graph_"></a><span
+ style="font-weight: bold;">4. <a href="TracI-Manual.html#graph">The
+chromatogram
+graph</a><br>
+</span>
+</h3>
+<div style="margin-left: 40px; font-weight: bold;">4.1 <a
+ href="TracI-Manual.html#graph-content">Content</a><br>
+4.2 <a href="TracI-Manual.html#graph-functions">Other functions</a><br>
+4.3 <a href="#graph-scoring">Setting the genotypes</a><br>
+</div>
+<h3><a name="5._ListBox"></a>5. <a href="#listbox">ListBox</a></h3>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">5.1 <a
+ href="#setting">Browsing reads</a></span></div>
+<div style="margin-left: 40px; font-weight: bold;">5.2 <a
+ href="#export">The internal lane standard</a></div>
+<h3><a name="6._Settings"></a>6. <a href="#settings">Settings</a></h3>
+<h3><a name="7._More_help..."></a>7. <a href="#help">More help...</a></h3>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">7.1 <a
+ href="#help-features">Help features</a>
+</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">7.2 <a href="#globbing">Globbing</a></span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;"></span></div>
+<h3><a name="8._FAQ"></a>8. <a href="#faq">FAQ</a><br>
+</h3>
+<h3><a name="9._License_agreement"></a>9. <a href="#agreement">License
+agreement</a></h3>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<h2><a name="installation"></a>1. <a href="#1._Installation">Installation</a><br>
+</h2>
+TracI is <a href="TracI-Manual.html#agreement">freeware</a> and thereby
+free of charge. The only limitations are on the level of its code, not on
+its 'normal' use. You can download the package from the site of
+the VIB Genetics Service Facility at <font> <a
+ href="http://www.vibgeneticservicefacility.be/LGV.htm" target="_blank">http://www.vibgeneticservicefacility.be/LGV.htm</a></font>.
+The application works right away after decompression, so you do not
+have to install anything. This should exclude any permission issues of
+the operating system regarding the installation of software on your
+computer. The application works
+anywhere so you can put the unpacked folder anywhere you like.<br>
+<br>
+<span style="font-weight: bold;"></span><span style="font-weight: bold;">Important:</span><br>
+<ul>
+  <li>By using the application you agree to the included <a
+ href="TracI-Manual.html#agreement">license agreement</a>, which mainly
+grants the use of the application without charge but limits the user in
+selling or changing the application itself (or any modification of it).</li>
+  <li>We are still working to improve the application so it's best to check back
+for updates once in a while. By default, the application will do this check
+automatically for you. It will not automatically update however,
+that's still something you should do manually.</li>
+  <li>It's a cross-platform application and thereby also available
+for
+linux.</li>
+</ul>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<h2><a name="overview"></a>2. <a href="#2._TracI:_an_overview">TracI: an
+overview</a></h2>
+<h3><span style="font-weight: bold;"></span></h3>
+<h3><a name="overview-background"></a>2.1 Background</h3>
+*Sigh*<br>
+<br>
+<h3><a name="overview-soft"></a>2.2 The software<br>
+</h3>
+The 'Main' window (Fig. 1a) serves as a platform to all its other
+features and
+consists of 3 major parts:<br>
+<ol>
+  <li><a href="TracI-Manual.html#buttons">Buttons</a> to open the other
+interesting
+windows</li>
+  <ul>
+    <li><a href="TracI-Manual.html#import">Import:</a> selection of the
+folder containing
+the raw data files and the assay description file.</li>
+    <li><a href="TracI-Manual.html#listbox">ListBox:</a> selection of
+reads you want to
+view or set as reference.<br>
+    </li>
+    <li><a href="TracI-Manual.html#settings">Settings:</a> mostly
+changing visual
+appearance of the application<br>
+    </li>
+    <li><a href="TracI-Manual.html#help-features">'?' or Help:</a>
+enables/disables help
+through the use of text
+balloons (a text balloon will appear if you hold the mouse pointer over
+an object)</li>
+  </ul>
+  <li>One or more graphs showing the raw <a
+ href="TracI-Manual.html#graph">chromatogram</a>
+data</li>
+  <li>The '<a href="TracI-Manual.html#comment">comment bar</a>' showing
+comments/help/notes from the application itself.&nbsp; </li>
+</ol>
+<br>
+<br>
+<div style="text-align: center;"><img alt="Overview"
+ src="pics/lgv/overview.JPG" style="width: 698px; height: 384px;"><br>
+</div>
+<div style="text-align: center;"><small>Fig. 1a : The different parts
+found in the 'Main' window</small><br>
+</div>
+<br>
+<span style="font-weight: bold;">Remark: </span><br
+ style="font-weight: bold;">
+<ul>
+  <li>The application holds a guide
+which will try to help you by giving hints of what you should do next.
+This guide is by default on, but can be switched off in the Settings.</li>
+</ul>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<h2><a name="import"></a>3. <a href="#3._Import">Import</a></h2>
+<h3><a name="import-open"></a>3.1 Selecting the data folder and the
+assay description file</h3>
+The import window (Fig. 3a) mainly serves as a platform to select the
+folder
+containing your raw data files and the assay description files.<br>
+<br>
+<div style="text-align: center;"><img alt="open"
+ src="pics/lgv/opendir.JPG" style="width: 435px; height: 198px;"><br>
+<br>
+</div>
+<div style="text-align: center;"><small style="font-style: italic;">Fig.
+3a : Importing data and assay files</small><br>
+</div>
+<ul>
+  <li>The upper part of the window expects you to select the directory
+containing your raw data (.fsa files). The application will, by default, select
+all
+the reads found in this directory. You can <a href="#actreads">deselect
+files</a> afterwards, but it's better to divide the different
+projects over different folders before you start.<br>
+  </li>
+  <li>In the lower part you select the appropriate assay description
+file (.txt file). This file holds the information of every marker
+used in the assay (color and length). You can create such assay file
+yourself (use the assay in the demo folder as template).<br>
+  </li>
+</ul>
+<br>
+<h3><a name="import-standard"></a>3.2 Unknown internal lane standard</h3>
+If you open an .fsa file for the first time, the application will put the
+analyzed internal lane standard in a .extra file with the same file name.
+If, however, the internal lane standard used is unknown to the application, 
+it will ask you to enter the sizes of every peak within this
+standard (Fig. 3b). <br>
+<br>
+<div style="text-align: center;"><img alt="Import-standard"
+ src="pics/convert2.jpg" style="width: 520px; height: 210px;"><br>
+<br>
+</div>
+<div style="text-align: center;"><small style="font-style: italic;">Fig.
+3b : Picture of the window for adding new internal lane standards.</small><br>
+</div>
+<br>
+For your ease, you can use another known internal lane standard as
+template
+(Fig. 3b - square 2). The lengths associated with this new internal
+lane
+standard are saved, so you only have to do this once for every new
+internal lane standard. <br>
+<br>
+<span style="font-weight: bold; font-style: italic;">Caution:</span><br
+ style="font-weight: bold; font-style: italic;">
+<ul>
+  <li>Entering wrong sizes will give bad results as amplicons will have
+incorrect lengths !</li>
+</ul>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<h2><a name="graph"></a>4. <a href="#4._The_chromatogram_graph_">The
+chromatogram graph</a></h2>
+<h3><a name="graph-content"></a>4.1 Content</h3>
+This region of the main window (Fig. 4a) holds and shows the :<br>
+<ol>
+  <li>Label of the read</li>
+  <li>Area (pink) with fixed height for getting a quick and general
+idea about the intensity (without having to look at the Y-axis)</li>
+  <li>Scored alleles</li>
+  <li>'Hold' button to fix a certain graph with a single read</li>
+  <li>Raw chromatogram
+data<br>
+  </li>
+</ol>
+<div style="text-align: center;"><br>
+<img alt="Genotype" src="pics/lgv/genotype.JPG"
+ style="width: 698px; height: 350px;"><br>
+</div>
+<div style="text-align: center;"><small style="font-style: italic;"><br>
+Fig. 4a : Scored genotype</small><br>
+</div>
+<span style="font-weight: bold;"><br>
+Remarks:</span><br>
+<ul>
+  <li>Many properties (color, font, ...) of the objects shown
+in the chromatogram can be altered using the Settings.</li>
+  <li>Ranges that are not fully covered by the internal lane standard
+are shown in the same color as the 'low height marker'.</li>
+  <li>X and Y ranges can also be changed using the arrows (up/down)</li>
+  <li>All graphs are
+linked with each other. If you change the read in one window, the
+others will follow. This linking can be forced by clicking with the
+right
+mouse button on the chromatogram graph.</li>
+</ul>
+<br>
+<h3><a name="graph-functions"></a>4.2 Other functions</h3>
+Next to just looking at the default range, you can also (Fig. 4b):<br>
+<ul>
+  <li>Select another assay (if the assay description file contains more
+than one)</li>
+  <li>Quickly zoom to a certain marker area<br>
+  </li>
+  <li>Super impose the currently activated reads<br>
+  </li>
+  <li>Change
+the X (base length) and Y (peak intensities) axis</li>
+  <li>View the
+intensities of other dyes</li>
+</ul>
+<br>
+<div style="text-align: center;"><img alt="Graph"
+ src="pics/lgv/Graph.JPG" style="width: 530px; height: 148px;"><br>
+<small style="font-style: italic;">Fig. 4b : The different chromatogram
+functions</small><br>
+</div>
+<span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><br>
+<h3><a name="graph-scoring"></a>4.3 Setting the genotypes</h3>
+Once you selected and opened the data and assay file(s) you can start
+scoring (setting genotypes). By default however, the complete range is
+shown. So before you can start, you should first select the marker you
+want analyze using the 'Zoom2' button. Scoring an allele is very easy
+and is done by using the LEFT mouse button, while holding the CONTROL
+key. Deleting an allele is done by LEFT clicking again on the existing
+bin, while holding the CONTROL key. Clearing the genotype is done by
+using the RIGHT mouse button, while holding the CONTROL key.<br>
+<br>
+<span style="font-weight: bold;">Remark:</span><br>
+<ul>
+  <li>At this moment, genotypes exists out of maximum 2 alleles.</li>
+</ul>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<h2><a name="listbox"></a>5. <a href="#5._ListBox">ListBox</a></h2>
+The ListBox window serves as an overview of your experiment as well as
+a platform to in/activate reads or export results. The most important
+features are:<br>
+<ol>
+  <li>The overall quality of a read. Its
+value represents the mean of all highest peaks found within each marker
+area. Colors are given in respect to the height of the 'low height
+marker', which value can be found and set in the 'Settings'.</li>
+  <li>The possibility to group/align alleles of the same size. It will
+be a lot easier to change these grouped sizes into alleles afterwards
+(in excel for instance).</li>
+  <li>To export your data</li>
+  <li>To view the already scored genotypes<br>
+  </li>
+</ol>
+<div style="text-align: center;"><img alt="Browse"
+ src="pics/lgv/Browse.JPG" style="width: 631px; height: 373px;"><br>
+</div>
+<div style="text-align: center;"><small><span
+ style="font-style: italic;">Fig. 5c : Browsing the data</span></small><br>
+</div>
+<br>
+<span style="font-weight: bold;">Remarks:</span><br>
+<ul>
+  <li>The 'meanH' value (color) found in the Listbox differs from the
+value (color) found within the chromatogram, because the one in the
+ListBox holds the average of ALL markers whereas the one in the
+chromatogram only takes into account the currently selected marker.</li>
+  <li>The sliding window used to group/align the alleles can be
+adjusted in the
+Settings.</li>
+  <li>Sizes are currently not just 'rounded' in order to avoid grouping
+of sizes 110.51 and 111.49.</li>
+  <li>You can also copy the content of the ListBox to the clipboard, by
+first selecting the data from within the ListBox after which you push
+the CONTROL-C (copy) keys.<br>
+  </li>
+  <li>Sorting can be done by clicking the column header.</li>
+</ul>
+<br>
+<h3><a name="setting"></a>5.1 Browsing reads<br>
+</h3>
+The application frequently uses the term 'active read'. Active reads are
+generally speaking, the reads of interest. Only those will be shown or
+can be browsed through in the graphs. The first time you start with an
+assay, all reads will be active by default. In-Activation is done by
+clicking on the checkboxes (Fig. 5a, square 2) or the 'Inactivate' or
+'Activate' buttons
+(Fig. 5a, square 1). Both of these buttons will set the selected reads
+in- or active. Selecting reads can be done using the SHIFT (subsequent
+selection) or CONTROL (individual selection) keys. The button 'Act2Sel'
+(<span style="text-decoration: underline;">Act</span>ive to <span
+ style="text-decoration: underline;">Sel</span>ect) will select the
+reads which are
+currently active. Which is very handy when you want to alter the
+current set
+of active reads without first selecting the ones that already are.<br>
+<br>
+<div style="text-align: center;"><br>
+<img alt="In-Activation" src="pics/lgv/In-Activation.JPG"
+ style="width: 631px; height: 335px;"><br>
+</div>
+<div style="text-align: center;"><small style="font-style: italic;"><br>
+Fig. 5a : In-Activating reads<br>
+</small></div>
+<br>
+<br>
+<span style="font-weight: bold;">Important</span> :<br>
+<ul>
+  <li>All graphs are
+linked with each other. If you change the read in one window, the
+others will follow. This linking can be forced by clicking with the
+right mouse button on the read in the ListBox.</li>
+</ul>
+<br>
+<h3><a name="standard"></a>5.2 The internal lane standard</h3>
+Most of the time you should not worry about the analysis of the
+internal lane standard or ILS, which is finding the correlation between
+retention time and base size. Only if sizes seem to be at the wrong
+positions (I have seen shifts of over 10000 bases), you should check
+whether the analysis of the ILS is correct. These shifts usually arise
+with overloaded samples (too much DNA or PCR cycles). <br>
+<br>
+<span style="font-weight: bold;"></span>The easiest way to fix any
+issues you will have regarding this, is by just opening the data folder
+as you are used to. The application will use the ILS analysis from ABI whenever
+available and analyze the ILS itself if absent. You can check which
+application did the analysis in the ILS column. If for some reason the
+ABI application failed in the analysis of the ILS, you can override the
+ILS analysis by ABI by using the AnaILS button.<br>
+<br>
+<span style="font-weight: bold;"></span>
+<div style="text-align: center;"><img alt="ILS" src="pics/lgv/ILS.JPG"
+ style="width: 631px; height: 335px;"><br>
+<br>
+<small><span style="font-style: italic;">Fig. 5b : The internal lane
+standard or ILS<br>
+</span></small></div>
+<h3><span style="font-weight: bold;">Remarks:</span><br>
+</h3>
+<ul>
+  <li>You can always manually check the ILS yourself by <a
+ href="#graph-functions">enabling the orange dye</a></li>
+  <li>Editing the ILS analysis is impossible (yet)</li>
+</ul>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<h2><a name="settings"></a>6. <a href="#6._Settings">Settings</a></h2>
+Holds the interface for altering many settings. Most of the
+settings will change the look of the application, which makes for nice
+pictures if you want to use those in any kind of presentation or
+document.<br>
+<br>
+<div style="text-align: center;"><img alt="Settings"
+ src="pics/lgv/Settings-part.JPG" style="width: 359px; height: 258px;"><br>
+<small style="font-style: italic;"><br>
+Fig. 6a : Part of the Settings window</small><br>
+</div>
+<br>
+<br>
+<span style="font-weight: bold;">Important:</span><br
+ style="font-weight: bold;">
+<ul>
+  <li>If you have questions about a certain setting or you are not sure
+what
+it does, turn on the help feature and move your mouse over the setting.
+Most likely, it will give a brief description.</li>
+</ul>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<h2><a name="help"></a>7. <a href="#7._More_help...">More help...</a></h2>
+<h3><a name="help-features"></a>7.1 Help features<br>
+</h3>
+The application holds 2 types of help: the 'guide' and 'help balloons'.<br>
+<ul>
+  <li>The
+guide will try to determine what you should do next and it will notify
+you through flashing objects and comment in the '<a href="#comment">Comment
+bar</a>'.</li>
+  <li>The help
+balloon will show more information (if available) about the object
+currently under the mouse pointer.</li>
+</ul>
+<div style="text-align: center;"><img alt="help" src="pics/lgv/help.JPG"
+ style="width: 435px; height: 146px;"><br>
+<small><span style="font-style: italic;">Fig. 7a : Help through the
+use of text balloons</span></small><br>
+</div>
+<br>
+<span style="font-weight: bold;">Remark:</span><br
+ style="font-weight: bold;">
+<ul>
+  <li>Both types can be dis-enabled in the Settings.</li>
+</ul>
+<br>
+<h3><a name="globbing"></a>7.2 Globbing</h3>
+By default, the application will take the well and label values from
+within the
+fsa files. If you are not happy with these data values (for whatever
+reason), you can use the globbing feature. This globbing feature uses a
+given pattern and tries to match it on the fsa file names. Thus, by
+changing the file name and having the correct pattern, you can have any
+well and label value shown. The globbing is done using <a
+ target="_blank" href="http://www.tcl.tk/man/tcl/TclCmd/re_syntax.htm">the
+regular
+expression syntax of Tcl/Tk</a>.<br>
+<br>
+Examples for file '1234_sample-1_bla.fsa':<br>
+<div style="margin-left: 40px;">_([^-]+) =&gt; sample<br>
+_([^.]+)_ =&gt; sample-1<br>
+([^_]+) =&gt; 1234<br>
+_[^_]+_([^.]+) =&gt;bla<br>
+</div>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<h2><a name="faq"></a>8. <a href="#8._FAQ">FAQ</a></h2>
+<b>Question: Can I create an assay description file myself ?</b><br>
+-You can create assay description files yourself. It's easiest to
+use the assay description file in the demo folder as template.<br>
+<br>
+<b>Question: It seems I cannot open such an assay description file ?</b><br>
+-The assay description file should be a text file in which the
+columns are seperated by tabs (tab delimited txt file).<br>
+<br>
+<b>Question: How do I use such an assay description file ?</b><br>
+-Assay files can be imported in the application together with
+the data. Start the application and press the 'Import'
+button.<br>
+<br>
+<b>Question: Peaks are not aligning with the bins ?</b><br>
+- The newer versions let the user change the bins width and
+position. The latest version can be download from:<br>
+<a href="http://www.vibgeneticservicefacility.be/tech/maq.php">http://www.vibgeneticservicefacility.be/tech/maq.php</a><br>
+<br>
+The following section in the manual explains how to alter the bins:<br>
+<a
+ href="http://www.vibgeneticservicefacility.be/tech/TracI-Manual.html#graph-editbin">http://www.vibgeneticservicefacility.be/tech/TracI-Manual.html#graph-editbin</a><br>
+<br>
+<b>Question: My assay contains more than 1 marker. How do I select the other ones ?</b><br>
+- The square which shows the active assay is actually a button.
+Clicking on it will give you the possibility to switch
+between the different assay descriptions contained within the
+assay description file.<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<h2><a name="agreement"></a>9. <a href="#9._License_agreement">License
+agreement</a></h2>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<div style="text-align: center;"><a href="#top">Top</a><br>
+</div>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<div style="text-align: right;"><a href="mailto:boris.harding@ua.ac.be">Harding
+Boris</a><br>
+</div>
+<br>
+<br>
+</body>
+</html>

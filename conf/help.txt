@@ -1,0 +1,464 @@
+#$::info(listbox,$text)
+# source conf/help.txt
+array set ::info {
+
+listbox,Act {
+Column holding checkboxes in order to select/deselect
+active reads. ('activated reads' are the reads you
+can browse through in the main window and the dosage plot)
+}
+
+listbox,ILS {
+ILS or 'Internal Lane Standard' reflects the application
+that handled the analysis of the internal lane standard.
+}
+
+listbox,P {
+Shows the 'part' of the plate (a 96 well plate is
+run in 2 different runs because of the 48 capillary abi3730).
+part 1: uneven columns
+part 2: even columns
+}
+
+listbox,meanH {
+The mean height of the highest peaks
+found in every predefined marker area.
+}
+
+listbox,Q {
+Reflects how stable the controle amplicons are in respect
+to the refences. Is actually the mean of all the standard
+deviations found when the dosages of the controle
+amplicons are calculated (using the refence reads).
+}
+
+listbox,main {
+This table serves as an overview of your experiment
+and as a platfrom to (de)select reads to view them.
+
+You can also :
+- sort columns by clicking on the column header
+- focus on a read right clicking on it
+- (in)activate reads by clicking the checkbox on the left
+- use CTRL-c to copy the table content to the clipboard
+}
+
+listbox,showamps {
+Only the amplicons of the chosen type
+are shown in the 'ListBox' window.
+}
+
+listbox,showtype {
+Only the data values of the chosen type
+are shown in the 'ListBox' window.
+}
+
+listbox,inactivate {
+Inactivate the currently selected reads.
+('activated reads' are the reads you can browse
+through in the main window and the dosage plot)
+}
+
+listbox,activate_sel {
+Activate the currently selected reads and do so
+in the current order. ('activated reads' are
+the reads you can browse through in the main
+window and the dosage plot)
+}
+
+listbox,act2sel {
+Select the currently activated reads.
+}
+
+listbox,anaILS {
+Re-analyze the internal lane standard.
+}
+
+listbox,sel2ref {
+Set the current selected reads as refence reads.
+}
+
+listbox,align {
+Group alleles that will most likely have the
+same number of repeat units. Once all groups
+are known, every allele will be changed into
+the mean of all sizes found within each group.
+}
+
+genoviewer,main {
+Browsing through the active genotypes can be done
+using the arrows or mouse wheel. Right clicking
+on a read will force the ListBox window to focus
+on this read.
+}
+
+grid,rows {
+Number of rows in the 'grid'.
+}
+
+grid,columns {
+Number of columns in the 'grid'.
+}
+
+grid,role {
+The role used to fetch data from Gentli
+(this will determine whether you have access).
+}
+
+grid,scroll {
+Scroll through the activated reads.
+}
+
+markerbar,marker {
+Currently selected assay.
+}
+
+markerbar,xmin {
+The chromatograms X-axis range (minimal size)
+}
+
+markerbar,xmax {
+The chromatograms X-axis range (maximal size)
+}
+
+markerbar,zoom {
+Zoom to the predefined area of the selected marker.
+}
+
+markerbar,ymin {
+The minimal height of the chromatograms Y-axis
+(the automated adjustment will be overruled
+if the maximum signal is below this value -
+only the signal in the color of the selected
+marker is taken into account)
+}
+
+markerbar,ymax {
+The height of the chromatograms Y-axis is automatically
+adjusted to the data unless you set it to an absolute
+number. (only the signal in the color of the selected
+assay is taken into account)
+}
+
+markerbar,superimp {
+SuperImpose:
+Show/Hide an overlay of all 'activated' reads
+}
+
+main,selector {
+Opens a new window in which you can
+select the data and assay files.
+}
+
+main,export {
+Opens a window in which you can choose file content
+and format of the data you want to export.
+}
+
+main,listbox {
+Opens the 'ListBox' window which holds an
+overview of all reads and results.
+}
+
+main,dos {
+Opens the 'DosPlot' window which graphically
+shows the dosage ratios.
+}
+
+main,settings {
+Opens or hides the 'Settings' window.
+}
+
+main,help {
+When enabled, information will be shown (if available)
+once you move your mouse over an object.
+}
+
+main,bar {
+This bar will show general messages from the application.
+}
+
+colorbutton {
+Show/hide this color in the chromatograms display.
+(each color represents a dye)
+}
+
+maq,height {
+Reads with an average height below this value will be hidden
+in the dosage plot when more than 1 read is shown.
+}
+
+maq,cutoff {
+Reads with a quality above this value are shown in gray and
+will be hidden in the dosage plot when more than 1 read is shown.
+}
+
+maq,max {
+The max value of the y axis in the dosage plot
+(if empty, the dosage plot will auto adjust according
+to its data points)
+}
+
+maq,type {
+Select which type (area or height) should be used
+to calculate the ratio/dosage.
+}
+
+maq,legend {
+Affects how reads are displayed
+in the legend of the dosage plot.
+}
+
+maq,ref2sel {
+Select the currently set reference reads.
+}
+
+maq,showdos {
+Create or redraw the dosage plot.
+}
+
+import,open {
+Open selected directory or experiment.
+}
+
+import,browse {
+Select the directory (holding .fsa files) for MAQ analysis.
+}
+
+settings,type {
+Ratios can be calculated based upon peak height or peak area.
+Here you can select which type you prefer.
+}
+
+settings,legend {
+Each vector in the 'DosPlot' window has an id in the legend
+on the right. Here you can choose the column of which the 
+value should be used to represent each vector.
+}
+
+settings,close {
+Close the 'Settings' window
+}
+
+settings,zoom2 {
+The list of amplicons you can select from
+}
+
+settings,showbinname {
+The amplicons of which the labels are shown.
+}
+
+settings,min_height {
+Reads with an average amplicon height below this value
+are NOT shown in the 'DosPlot' (except when you select the
+One-by-one option)
+}
+
+settings,min_score {
+Reads with a quality above this value are not colored and
+NOT shown in the 'DosPlot' (except when you select the
+One-by-one option).
+}
+
+settings,ymax {
+The y-axis maximum. (if nothing is filled in,
+it's automatically adjusted)
+}
+
+settings,dos_bg {
+Background color
+}
+
+settings,dos_normal {
+Color of the area around 100%
+}
+
+settings,dos_grayzone {
+}
+
+settings,alignwindow {
+The width of the sliding window,
+used when grouping genotypes.
+}
+
+settings,zoomrange {
+Here you can select the range (left and right)
+whenever an amplicon is chosen to zoom to.
+}
+
+settings,ymin {
+The y-axis is scaled automatically for every read,
+(whenever the height is below this value, this value is taken)
+}
+
+settings,signalwidth {
+The chromatograms line width
+}
+
+settings,lowpeaks {
+You can quickly detect low signals by this colored area.
+Here you can set its height.
+}
+
+settings,showlow {
+Once enabled, a rectangle will be put on every graph
+in order to quickly detect low signals.
+}
+
+settings,lowpeaks_bg {
+You can quickly detect low signals by this colored area.
+Here you can set its color.
+}
+
+settings,lowpeaks_border {
+You can quickly detect low signals by this colored area.
+Here you can set its border color.
+}
+
+settings,activebg {
+The 'activate' reads background color in the 'Grid' 
+(useful whenever the grid holds more than 1 chromatogram)
+}
+
+settings,activeplotbg {
+The 'activate' plot background color (important
+whenever the grid holds more than 1 chromatogram)
+}
+
+settings,binname {
+The font used for the amplicon/bin names
+shown in the chromatogram.
+}
+
+settings,binrotation {
+How much the the amplicon/bin names should be
+rotated while shown in the chromatogram.
+}
+
+settings,badcontrol {
+Color of the controle amplicon bins.
+}
+
+settings,badtest {
+Color of the test amplicon bins.
+}
+
+settings,goodcontrol {
+Color of the controle amplicons height within the bin.
+}
+
+settings,goodtest {
+Color of the test amplicons height within the bin.
+}
+
+settings,glob_well {
+While opening fsa files from a new experiment, this
+regular expression will scan every file name in an
+attempt to identify its well. If nothing matches the
+regular expression, the well from within the file
+is used instead.
+}
+
+settings,glob_individual {
+While opening fsa files from a new experiment, this
+regular expression will scan every file name in an
+attempt to identify its 'sample name' (=individual).
+If nothing matches the regular expression, the label
+from within the file is used instead.
+}
+
+settings,glob_reference {
+While opening fsa files from a new experiment, this
+regular expression will scan every file name in an
+attempt to identify whether or not it should be used
+as reference.
+}
+
+settings,showbinOnSi {
+Determines whether or not you can see and change
+genotypes while being in the 'superimpose' state.
+}
+
+settings,overlayHold {
+Determines how other reads are shown when a
+specific read is being 'held'. If enabled,
+the 'held' read will stay in background. If
+disabled, the 'held' read will use the graph
+for its own.
+}
+
+settings,reanalyse {
+It happens that fsa files are treated as sequence
+files and thereby wrongly analysed, resulting in
+peaks occuring at unexpected sizes. To circumvent
+such problems, it's recommended to let the application
+analyse all files by default.
+}
+
+settings,restandard {
+It happens that the auto analysis of the internal
+lane standard fails, resulting in peaks occuring
+at unexpected sizes. If you encounter such shifts,
+you can try to let the application reanalyse those.
+Be warned though that it can take a long time and
+that this is not necessary in most cases.
+}
+
+settings,check4update {
+If enabled, the application will check our server
+for the latest update available and prompt the user
+if one is available.
+}
+
+settings,showstandard {
+If enabled, the application will show wich ranges
+are not supported with the internal lane standard
+because one or more peaks were missing. This will
+result in a shift of the peaks that occur within
+this range. Background and line color are the same
+as the 'low height marker'.
+}
+
+import,convert {
+This button allows the user to convert their assay files
+from .txt to .enc (if you have the correct permission)
+}
+
+import,createkey {
+In order to obtain a valid license or to start the 
+demo version, you first have to create a valid key
+for your personal computer. A license is created
+based upon this key and is thereby only valid for
+the computer where its key was created.
+}
+
+dos,recolor {
+If more than 1 read is shown in the dosage plot,
+every read has it's own color. If some colors
+are unclear you can reassign colors by pushing
+this button.
+}
+
+dos,main {
+The DosPlot represents the dosage quotients for each amplicon.
+If only 1 read is shown in the plot window the inner circles
+background color represents the mean height of its amplicons
+ranging from black to white (meanH below 5000). If more than
+1 read is shown, only the reads with good quality (according
+to the settings) are shown. The reads that are not shown are
+colored red in the legend.
+
+Right clicking on a data point, will show its read in the Main
+and ListBox window. Left clicking will show/hide the data values.
+}
+
+dos,show {
+Select here if you want all active reads
+to be shown in the dosage plot or one-by-one.
+}
+
+
+
+}
+
+
