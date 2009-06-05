@@ -89,7 +89,8 @@ proc main args {
 		set ::exp {}
 	}
 	set ::local 0
-	set ::version 1.1.0b
+# $Format: "set ::version $ProjectMajorVersion$.$ProjectMinorVersion$.$ProjectPatchLevel$"$
+set ::version 1.1.0
 	namespace eval config {}
 	set cfgfile [file join $Classy::appdir conf Config.txt]
 	if {[file exist $cfgfile]} {
@@ -147,7 +148,7 @@ proc main args {
 #	update_dosButton .mainw.row0.dos
 	update_helpButton .mainw.row0.help
 	reload_data
-	checkUpdate
+	# checkUpdate
 	guide
 	raise $mainW
 	focus $mainW

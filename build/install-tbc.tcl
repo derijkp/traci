@@ -1,4 +1,4 @@
-#!/home/boris/darcs/tca/Linux-i686/tclsh8.4
+#!/bin/sh
 # the next line restarts using tclsh \
 exec tclsh "$0" "$@"
 
@@ -13,13 +13,14 @@ if {"$tcl_platform(platform)"=="unix"} {
 # --------
 
 set srcdir [file dir [file dir $script]]
-set libfiles {TracI.ico TracI.tcl conf}
+set libfiles {TracI.ico traci.tcl conf}
 set tbclibfiles {lib}
 set shareddatafiles {}
 set headers {}
 set libbinaries {}
 set binaries {}
-set version 1.1.0b
+# $Format: "set version $ProjectMajorVersion$.$ProjectMinorVersion$.$ProjectPatchLevel$"$
+set version 1.1.0
 
 # standard
 # --------
