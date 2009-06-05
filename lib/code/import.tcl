@@ -1,5 +1,6 @@
 proc selector {} {
 	set w .selector
+	setDemoDir
 	if {[winfo exist $w]} {wm state $w normal;raise $w;return}
 	toplevel $w -takefocus 1
 	wm title $w "Importing data and assay files"
@@ -26,6 +27,8 @@ proc selector {} {
 	grid columnconfigure $assayframe 0 -weight 1
 	set buttonframe [frame $w.buttonframe]
 		button $buttonframe.ok -text Ok -command "openDir exp_temp assay_temp $w"
+		button $buttonframe.project -text Project -command "selectProject $w;guide"
+		balloon $buttonframe.project import,project
 #		button $buttonframe.convert -text Convert -command "convert assay_temp"
 #		balloon $buttonframe.convert import,convert
 		if {[string length [info command $buttonframe.role]]} {catch {$buttonframe.role destroy}}
@@ -34,7 +37,7 @@ proc selector {} {
 #		button $buttonframe.createkey -text "Create Key" -command "createKey"
 #		balloon $buttonframe.createkey import,createkey
 		button $buttonframe.cancel -text Close -command "destroy $w;guide"
-		grid $buttonframe.role $buttonframe.ok $buttonframe.cancel
+		grid $buttonframe.role $buttonframe.ok $buttonframe.project $buttonframe.cancel
 #	grid $w.title -sticky nwse -columnspan 2
 	grid $dataframe -column 0 -sticky nwse
 	grid $assayframe -column 0 -sticky nwse
@@ -44,6 +47,10 @@ proc selector {} {
 	set ::config::role $::config::role
 	focus $dataframe.entry
 	guide
+	wm withdraw $w
+	update
+	centerWindow $w .mainw
+	wm deiconify $w
 }
 
 proc roleButton {args} {
@@ -57,6 +64,20 @@ proc roleButton {args} {
 	} else {
 		grid forget .selector.buttonframe.role
 	}
+}
+
+proc titleUpdate {{extraText {}}} {
+	if {[info exist ::exp] && [string length $::exp]} {
+		set titleExp "- $::exp"
+	} else {
+		set titleExp ""
+	}
+	if {[info exist ::assay] && [string length $::assay]} {
+		set titleAssay "([file rootname [file tail $::assay]])"
+	} else {
+		set titleAssay ""
+	}
+	wm title $::mainW "$config::title - $extraText v$::version $titleExp $titleAssay"
 }
 
 proc change_exp {dir} {
@@ -76,7 +97,7 @@ proc ReadExtraFile {file} {
 	return $data
 }
 
-proc openDir {udirvar ufile {window {}}} {
+proc openDir_old {udirvar ufile {window {}}} {
 	global bar
 	upvar $udirvar dir
 	upvar $ufile file
@@ -99,6 +120,61 @@ proc openDir {udirvar ufile {window {}}} {
 	} elseif {!$license} {
 		return
 	}
+	if {[string length $dir]} {
+		if {[regexp {/} $dir]} {
+			set ::config::role 0
+			openLocaldir $dir
+		} else {
+			change_exp $dir
+			vwait ::data::datalist(unknown)
+		}
+	}
+	if {[string length $file]} {
+		if {[string length $window]} {destroy $window}
+		drawbar $bar 0 {Applying assay...} black red 1
+		Kget
+		set error []
+		if {[catch {readAssay $file} data]} {
+			tk_messageBox -icon error -type ok -message $data
+			return
+		} else {
+			testassay $data
+	                set assays $::data::assayList
+	                lappend assays unknown
+	                $::markerbarW.marker configure -list $assays
+	                $::markerbarW activate_marker [lindex $assays 0]
+		}
+	} else {
+                $::markerbarW activate_marker unknown
+	}
+	saveState
+#	guide
+}
+
+proc openDir {udirvar ufile {window {}}} {
+	global bar
+	upvar $udirvar dir
+	upvar $ufile file
+	if {[info exist ::config::default(licenseFile)] && [string equal DeMo $::config::default(licenseFile)]} {
+		set ::startDemo 1
+		titleUpdate Demo
+#		wm title $::mainW "$config::title Demo v$::version - $::exp"
+	}
+#	set license [checkLicense]
+#	if {$::startDemo} {
+#		set demofiles [readChecksum $dir]
+#		foreach dfile [glob -nocomplain $dir/*fsa] {
+#			set sum [crc::cksum -filename $dfile]
+#			if {![inlist $demofiles $sum]} {
+#				# invalid demo file !
+#				set error "I'm very sorry but you need to buy a license in order to view and analyse these files."
+#				tk_messageBox -icon error -type ok -message $error -title "No License"
+#				return
+#			}
+#		}
+#	} elseif {!$license} {
+#		return
+#	}
 	if {[string length $dir]} {
 		if {[regexp {/} $dir]} {
 			set ::config::role 0
@@ -158,6 +234,9 @@ proc browse {udirvar object} {
 	}
 	set dirvar $tdirvar
 	set ::config::default(datadir) $dirvar
+	if {[check4Project $dirvar]} {
+		return
+	}
 	set aantal [testDir $dirvar .fsa]
 	set text "Data Directory"
 	if {$aantal} {
@@ -691,7 +770,7 @@ proc pacextra {file} {
 	}
 }
 
-proc pcloaddata {file} {
+proc pcloaddata_old {file} {
 	global data settings filedata currentfile analyze
 	catch {unset data}
 	if {![file exists $file]} {
@@ -757,7 +836,7 @@ proc pcloaddata {file} {
 	}
 	set pac_sta 0
 	if {$restandard} {
-		standardscan $file
+		standardscn $file
 		set pac_sta 1
 		set extra 1
 	}
@@ -765,7 +844,75 @@ proc pcloaddata {file} {
 	foreach {data(avgstep) data(dif)} $settings(machine,$data(machinemodel)) break
 }
 
-proc pcsaveextra {file dataVar pac_sta pac_ana} {
+proc pcloaddata {file} {
+	global data settings filedata currentfile analyze
+	catch {unset data}
+	if {![file exists $file]} {
+		if {[file exists $file.gz]} {
+			set file $file.gz
+		} elseif {[file exists $file.zip]} {
+			set file $file.zip
+		} else {
+			error "file $file not found"
+		}
+	}
+	set unzippedfile [tempunzip $file file]
+	set data(file) [file tail $file]
+	if {[string equal [file extension $file] .txt]} {
+		foreach line [split [file_read $unzippedfile] \n] {
+			catch {array set data [split $line \t]}
+		}
+	} else {
+		set f [open $unzippedfile "r"]
+		fconfigure $f -encoding binary -translation binary
+		array set data [abi2txt [read $f]]
+		close $f
+	}
+	set extrafile [file root $file].extra
+	set extra 0
+	tempunzip_close
+	if {[info exist data(fieldorder)]} {
+		set fieldorder [split $data(fieldorder) {}]
+#set fieldorder  {T A G C C}
+	} else {set fieldorder {}}
+	set pac_ana 0
+	foreach color {1 2 3 4 5} field $fieldorder {
+		catch {unset rawdata}
+		if {[info exist data(rawdata$color)]} {
+			set rawdata $data(rawdata$color)
+		} elseif {[info exist data(rawdata$field)]} {
+			set rawdata $data(rawdata$field)
+		}
+		if {[info exists rawdata] && ([string equal Enabled $config::default(reanalyse)] || ![info exists data(analyseddata$color)])} {
+			set data(analyseddata$color) [remove_baseline $rawdata 600 200]
+			set extra 1
+			set pac_ana 1
+		}
+	}
+	if {![info exists data(standardsize1)]} {
+		set restandard 1
+	} elseif {[info exist analyze(standard)]} {
+		if {$analyze(standard)} {
+			set restandard 1
+		} else {
+			set restandard 0
+		}
+	} elseif {[string equal $config::default(restandard) Enabled]} {
+		set restandard 1
+	} else {
+		set restandard 0
+	}
+	set pac_sta 0
+	if {$restandard} {
+		standardscn $file
+		set pac_sta 1
+		set extra 1
+	}
+	if {$extra} {pcsaveextra $file data $pac_sta $pac_ana}
+	foreach {data(avgstep) data(dif)} $settings(machine,$data(machinemodel)) break
+}
+
+proc pcsaveextra_old {file dataVar pac_sta pac_ana} {
         upvar $dataVar data
         set extrafile [file root $file].extra
         foreach color {1 2 3 4 5} {
@@ -787,8 +934,265 @@ proc pcsaveextra {file dataVar pac_sta pac_ana} {
         close $f
 }
 
+proc pcsaveextra {file dataVar pac_sta pac_ana} {
+	global currentfile
+        upvar $dataVar data
+        set extrafile [file root $file].extra
+        foreach color {1 2 3 4 5} {
+                if {![info exists data(analyseddata$color)]} continue
+                set temp {}
+                foreach el $data(analyseddata$color) {
+                        lappend temp [format %.0f $el]
+                }
+                append extra "analyseddata$color\t$temp\n"
+        }
+	if {![string length $data(standardscan1)]} {
+		set pac_sta -1
+	} elseif {[inlist $::data::otherExtra $currentfile]} {
+		set pac_sta 2
+	}
+        if {[info exists data(standardsize1)]} {
+                append extra "standardsize1\t$data(standardsize1)\nstandardscan1\t$data(standardscan1)\n"
+                append extra "pac_sta\t$pac_sta\n"
+                append extra "pac_ana\t$pac_ana\n"
+        }
+        # append extra StdF1\nst7\n
+        set f [open $extrafile w]
+        puts -nonewline $f $extra
+        close $f
+}
+
+proc standardscn {file} {
+	global data currentdir currentfile data resultscan resultsizes
+	if {![info exist data(StdF1)]} {
+		set data(StdF1) none
+	}
+	set sizes [getstdsizes]
+	if {[llength $sizes] == 0} return
+	# checks
+	set checked {}
+	set checkrounds 2
+	for {set testround 1} {$testround <= $checkrounds} {incr testround} {
+		set checked [standardscan_mtch $sizes resultsizes resultscan resultscore resultstep $checked]
+		lappend ::resultscan_list "${currentfile}\t[join $resultscan \t]"
+		set elen [llength $sizes]
+		set len [llength $resultsizes]
+		if {$len >=2} {break}
+	}
+	if {$len != $elen} {
+		log IND_SER standardmissing 1.0 $currentfile "some peaks in standardscan missed: [list_lremove $sizes $resultsizes]"
+	}
+	if {$elen == $len || $len <2} {
+#	if {($len < 2) || ($len < [expr {$elen-4}])} {}
+		log IND_FAT standardmissing 1.0 $currentfile "not enough peaks in standardscan correct, missed: [list_lremove $sizes $resultsizes]"
+		set data(standardsize1) {}
+		set data(standardscan1) {}
+		return
+	} elseif {$len != $elen} {
+		log IND_SER standardmissing 1.0 $currentfile "some peaks in standardscan missed: [list_lremove $sizes $resultsizes]"
+	}
+	log IND_INFO standardsizes $resultscore $currentfile $resultsizes
+	log IND_INFO standardscan $resultscore $currentfile $resultscan
+	log IND_INFO resultstep $resultstep
+	set data(standardsize1) $resultsizes
+	set data(standardscan1) $resultscan
+	set data(avgstep) [expr {round([get resultstep $data(avgstep)])}]
+	# save extra
+	pacsaveextra $file data
+}
+
+proc standardscan_mtch {sizes resultsizesVar resultscanVar resultscoreVar resultstepVar checked} {
+	global data stds settings values
+	upvar $resultsizesVar resultsizes
+	upvar $resultscanVar resultscan
+	upvar $resultscoreVar resultscore
+	upvar $resultstepVar resultstep
+	# set sizes [getstdsizes]
+	foreach {data(avgstep) data(dif)} $settings(machine,$data(machinemodel)) break
+	set avgstep $data(avgstep)
+	set calibname [list calib $data(StdF1) $data(machinemodel)]
+	if {[info exists stds($calibname)]} {
+		set calibs $stds($calibname)
+	} else {
+		set calibs $sizes
+	}
+	set pos 0
+	foreach s $sizes {
+		if {$s >= 50} break
+		incr pos
+	}
+	if {$pos} {
+		set sizes [lrange $sizes $pos end]
+		set calibs [lrange $calibs $pos end]
+	}
+	# find standardscan
+	if {![llength $checked]} {
+		set colornum $data(Dye#1)
+	} else {
+		set lanes [lsort -decreasing [array names data DyeN*]]
+		foreach lane $lanes {
+			set colornum [string index $lane 4]
+			if {![inlist $checked $colornum]} {break}
+		}
+	}
+	lappend checked $colornum
+	set slen [llength $sizes]
+	set values $data(analyseddata$colornum)
+	set fpeaks [standrd_peaks $values $sizes $avgstep]
+	set peaks_poss [list_subindex $fpeaks 0]
+	set flen [llength $fpeaks]
+	if {$flen < [expr {$slen-5}]} {
+		set resultsizes {}
+		set resultscan {}
+		set resultscore 1000000
+		set resultstep {}
+		return $checked
+	}
+	# find possible steps
+	set sendmin [expr {$slen-5}]
+	set pendmin [min [expr {$slen-5}] [expr {$flen-5}]]
+	set resultscore 1000000
+	set resultscan {}
+	set resultsizes {}
+	set resultstep {}
+	set break 0
+	for {set sstart 0} {$sstart < 5} {incr sstart} {
+		for {set send [expr {$slen-1}]} {$send > $sendmin} {incr send -1} {
+			for {set pend [expr {$flen-1}]} {$pend > $pendmin} {incr pend -1} {
+				set pstartmax [max [expr {$pend - $slen + 5}] 0]
+				for {set pstart 0} {$pstart < $pstartmax} {incr pstart} {
+#puts -----
+#putsvars sstart send pstart pend sizes calibs fpeaks testscan testsizes teststep
+					set score [stdscan_match_one $sizes $calibs $fpeaks $sstart $send $pstart $pend testscan testsizes teststep]
+					if {$score < $resultscore} {
+						set resultparam [list $sstart $send $pstart $pend]
+						set resultscore $score
+						set resultstep $teststep
+						set resultsizes $testsizes
+						set resultscan $testscan
+						if {($score < 1.5) || (($sstart > 0) && ($score < 5))} {
+							set break 1
+							break
+						}
+					}
+				}
+				if {$break} break
+			}
+			if {$break} break
+		}
+		if {$break || ($resultscore < 5)} break
+	}
+	return $checked
+}
+
+proc testfpeaks {list} {
+	global data
+#	set top 2500
+	set top $::config::default(ILScutoff)
+	set onder 0
+	set newlist {}
+	foreach group $list {
+		foreach {size breedte} $group break
+		if {$size < $top} {
+			incr onder
+		} else {
+			lappend newlist $group
+		}
+	}
+	if {$onder >= 20} {
+		return [takeOtherStandard]
+	} else {
+		return $list
+	}
+}
+
+proc takeOtherStandard {} {
+	global currentfile
+	set files [glob -nocomplain $::exp/*.extra]
+	set newfpeaks {}
+	if {[llength $files]} {
+		set file [lindex $files 0]
+		set src [open $file]
+		while {![eof $src]} {
+			set line [gets $src]
+			array set temp [split $line \t]
+		}
+		close $src
+		foreach size $temp(standardscan1) {
+			lappend newfpeaks [list $size 100]
+		}
+		lappend ::data::otherExtra $currentfile
+	} else {
+		#no file found yet !
+		lappend ::data::nootherExtra $currentfile
+	}
+	return $newfpeaks
+}
+
+proc standrd_peaks {values sizes avgstep} {
+        global data
+        set avgstep $data(avgstep)
+        set slen [llength $sizes]
+        # find first peaks (blob)
+        set cvalues [convolve $values $avgstep 0]
+        foreach noise {100 50 40} {
+                set fpeaks [bot_fpeaks $cvalues $noise]
+                if {[llength $fpeaks] >= $slen} break
+        }
+        set len [llength $fpeaks]
+        if {!$len} {return {}}
+        # take broadest peak as start blob
+        set sfpeaks [lsort -integer -index 2 -decreasing $fpeaks]
+        set peak [lindex $sfpeaks 0]
+        set pos [lsearch $fpeaks $peak]
+        # if not good, try second broadest
+        if {[expr {[llength $fpeaks] - $pos}] < [expr {$slen-2}]} {
+                set peak [lindex $sfpeaks 1]
+                set pos [lsearch $fpeaks $peak]
+                # if not good, try on height
+                if {[expr {[llength $fpeaks] - $pos}] < [expr {$slen-2}]} {
+                        set sfpeaks [lsort -real -index 1 -decreasing $fpeaks]
+                        set peak [lindex $sfpeaks 0]
+                        # if still not good, just take first
+                        set peak [lindex $fpeaks 0]
+                        if {[expr {[llength $fpeaks] - $pos}] < [expr {$slen-2}]} {
+                                set sfpeaks [lsort -real -index 1 -decreasing $fpeaks]
+                                set peak [lindex $sfpeaks 0]
+                        }
+                }
+        }
+        # median peak width
+        set mw [median [list_subindex $fpeaks 2]]
+        # find peaks starting after blob
+#       set size [lindex $sizes 0]
+#       set shift [min [max [expr {$size-30}] 5] 10]
+#       set start [expr {[lindex $peak 0] + [expr {[lindex $peak 2]/2}] + ($shift * $avgstep)}]
+        set start [expr {[lindex $peak 0]+[lindex $peak 2]/2}]
+        foreach cutoff 50 {
+                set fpeaks [fpeaks $values $cutoff $start $mw]
+                if {[llength $fpeaks] >= $slen} break
+        }
+	set fpeaks [testfpeaks $fpeaks]
+        set len [llength $fpeaks]
+        set slen [llength $sizes]
+        if {$len > [expr {$slen+1}]} {
+                set fpeaks [lsort -index 1 -decreasing -real $fpeaks]
+                set mpeak [lindex $fpeaks [expr {$slen*2/3}]]
+                set min [max [expr {[lindex $mpeak 1]*0.3}] 50]
+                set pos $slen
+                for {} {$pos < $len} {incr pos} {
+                        set h [lindex [lindex $fpeaks $pos] 1]
+                        if {$h < $min} break
+                }
+                set fpeaks [lrange $fpeaks 0 [expr {$pos-1}]]
+                set fpeaks [lsort -index 0 -integer $fpeaks]
+        }
+        return $fpeaks
+}
+
 proc addStandard_dialog {standard list} {
 	set ::answer {}
+	set parent [checkParent $::mainW]
 	set top [toplevel .addstandard]
 	wm title $top "Adding Standard"
 	set frame [frame $top.frame]
@@ -816,6 +1220,10 @@ You can use the known standards as template by selecting one from the list.
 	button $buttonframe.cancel -text Cancel -command "set ::answer cancel;destroy $top"
 	grid $buttonframe.ok $buttonframe.cancel
 	grid $buttonframe
+	wm withdraw $top
+	update
+	centerWindow $top $parent
+	wm deiconify $top
 	vwait ::answer
 	return $::answer
 }
@@ -880,10 +1288,11 @@ proc log {args} {
 	puts $currentout $currentdir\t[join $args \t]
 }
 
-proc CreateStandard {files {force {}}} {
+proc CreateStandard_old {files {force {}}} {
 	global bar pacdir analyze
 	set nr 1
 	set first 1
+	set forced_standards {}
 	foreach file $files {
 		set proc [expr $nr*100/[llength $files]]
 		drawbar $bar $proc "Creating Standard files: $nr/[llength $files]" black red 1
@@ -907,12 +1316,16 @@ proc CreateStandard {files {force {}}} {
 				set restandard 0
 			}
 			if {$restandard} {
-				foreach {type names} [test4Standard $standard] break
-				if {[string equal $type unknown]} {
-					set answer [addStandard_dialog $standard $names]
-					if {![string equal add $answer]} {
-						error "Action canceled by user."
+				foreach {type list} [test4Standard $standard] break
+				if {[string equal $type unknown] && ![inlist $forced_standards $standard]} {
+					set ::template {}
+					while {![string length $::template]} {
+						set answer [addStandard_dialog $standard $list]					
+						if {![string equal add $answer]} {
+							error "Action canceled by user."
+						}
 					}
+					lappend forced_standards $standard
 				}
 			}
 			test4Machine $machine
@@ -921,6 +1334,70 @@ proc CreateStandard {files {force {}}} {
 			}
 		}
 		incr nr
+	}
+	if {[llength [array names errors]]} {
+		error [array get errors]
+	}
+}
+
+proc CreateStandard {files {force {}}} {
+	global bar pacdir analyze
+	set nr 1
+	set first 1
+	set forced_standards {}
+	set ::data::otherExtra {}
+	set ::data::nootherExtra {}
+	set parent .mainw
+	foreach file $files {
+		set proc [expr $nr*100/[llength $files]]
+		drawbar $bar $proc "Creating Standard files: $nr/[llength $files]" black red 1
+		if {[string length $force] || ![file exist "[file rootname $file].extra"]} {
+			if {$first} {
+				test4pac
+				set first 0
+			}
+			foreach {standard machine standardsize} [TestStandard $file] break
+			if {!$standardsize} {
+				set restandard 1
+			} elseif {[info exist analyze(standard)]} {
+				if {$analyze(standard)} {
+					set restandard 1
+				} else {
+					set restandard 0
+				}
+			} elseif {[string equal $config::default(restandard) Enabled]} {
+				set restandard 1
+			} else {
+				set restandard 0
+			}
+			if {$restandard} {
+				foreach {type list} [test4Standard $standard] break
+				if {[string equal $type unknown] && ![inlist $forced_standards $standard]} {
+					set ::template {}
+					while {![string length $::template]} {
+						set answer [addStandard_dialog $standard $list]					
+						if {![string equal add $answer]} {
+							error "Action canceled by user."
+						}
+					}
+					lappend forced_standards $standard
+				}
+			}
+			test4Machine $machine
+			if {[catch {pacextra $file} message]} {
+				error "Error while creating '.extra' files:\n$message"
+			}
+		}
+		incr nr
+	}
+	if {[llength $::data::otherExtra]} {
+		set message "One or more '.fsa' files contain incorrect Internal Lane Standard (ILS) data.\nIn order to give you some impression of the results, the ILS data has been taken from one of the other '.fsa' files. The ILS status of each file can be checked in the ListBox window."
+		tk_messageBox -message $message -icon info -type ok -title "ILS issues" -parent $parent
+		if {[llength $::data::nootherExtra]} {
+#			set message "One or more '.fsa' files could not be analysed..."
+#			tk_messageBox -message $message -icon info -type ok -title "ILS issues" -parent $parent
+			CreateStandard $::data::nootherExtra
+		}
 	}
 	if {[llength [array names errors]]} {
 		error [array get errors]
@@ -976,6 +1453,118 @@ proc readChecksum {folder} {
 		error "Error while trying to read democheck file."
 	}
 	return $data
+}
+
+proc standardscn_old {file} {
+	global data currentdir currentfile data resultscan resultsizes
+	set sizes [getstdsizes]
+	if {[llength $sizes] == 0} return
+	# checks
+	set checked {}
+	set checkrounds 2
+	for {set testround 1} {$testround <= $checkrounds} {incr testround} {
+		set checked [standardscan_mtch $sizes resultsizes resultscan resultscore resultstep $checked]
+		lappend ::resultscan_list "${currentfile}\t[join $resultscan \t]"
+		set elen [llength $sizes]
+		set len [llength $resultsizes]
+		if {$len >=2} {break}
+	}
+	if {($len < 2) || ($len < [expr {$elen-4}])} {
+		log IND_FAT standardmissing 1.0 $currentfile "not enough peaks in standardscan correct, missed: [list_lremove $sizes $resultsizes]"
+		set data(standardsize1) {}
+		set data(standardscan1) {}
+		return
+	} elseif {$len != $elen} {
+		log IND_SER standardmissing 1.0 $currentfile "some peaks in standardscan missed: [list_lremove $sizes $resultsizes]"
+	}
+	log IND_INFO standardsizes $resultscore $currentfile $resultsizes
+	log IND_INFO standardscan $resultscore $currentfile $resultscan
+	log IND_INFO resultstep $resultstep
+	set data(standardsize1) $resultsizes
+	set data(standardscan1) $resultscan
+	set data(avgstep) [expr {round([get resultstep $data(avgstep)])}]
+	# save extra
+	pacsaveextra $file data
+}
+
+proc standardscan_mtch_old {sizes resultsizesVar resultscanVar resultscoreVar resultstepVar checked} {
+	global data stds settings values
+	upvar $resultsizesVar resultsizes
+	upvar $resultscanVar resultscan
+	upvar $resultscoreVar resultscore
+	upvar $resultstepVar resultstep
+	# set sizes [getstdsizes]
+	foreach {data(avgstep) data(dif)} $settings(machine,$data(machinemodel)) break
+	set avgstep $data(avgstep)
+	set calibname [list calib $data(StdF1) $data(machinemodel)]
+	if {[info exists stds($calibname)]} {
+		set calibs $stds($calibname)
+	} else {
+		set calibs $sizes
+	}
+	set pos 0
+	foreach s $sizes {
+		if {$s >= 50} break
+		incr pos
+	}
+	if {$pos} {
+		set sizes [lrange $sizes $pos end]
+		set calibs [lrange $calibs $pos end]
+	}
+	# find standardscan
+	if {![llength $checked]} {
+		set colornum $data(Dye#1)
+	} else {
+		set lanes [lsort -decreasing [array names data DyeN*]]
+		foreach lane $lanes {
+			set colornum [string index $lane 4]
+			if {![inlist $checked $colornum]} {break}
+		}
+	}
+	lappend checked $colornum
+	set slen [llength $sizes]
+	set values $data(analyseddata$colornum)
+	set fpeaks [standard_peaks $values $sizes $avgstep]
+	set peaks_poss [list_subindex $fpeaks 0]
+	set flen [llength $fpeaks]
+	if {$flen < [expr {$slen-5}]} {
+		set resultsizes {}
+		set resultscan {}
+		return $checked
+	}
+	# find possible steps
+	set sendmin [expr {$slen-5}]
+	set pendmin [min [expr {$slen-5}] [expr {$flen-5}]]
+	set resultscore 1000000
+	set resultscan {}
+	set resultsizes {}
+	set resultstep {}
+	set break 0
+	for {set sstart 0} {$sstart < 5} {incr sstart} {
+		for {set send [expr {$slen-1}]} {$send > $sendmin} {incr send -1} {
+			for {set pend [expr {$flen-1}]} {$pend > $pendmin} {incr pend -1} {
+				set pstartmax [max [expr {$pend - $slen + 5}] 0]
+				for {set pstart 0} {$pstart < $pstartmax} {incr pstart} {
+					set score [stdscan_match_one $sizes $calibs $fpeaks $sstart $send $pstart $pend testscan testsizes teststep]
+					if {$score < $resultscore} {
+						set resultparam [list $sstart $send $pstart $pend]
+						set resultscore $score
+						set resultstep $teststep
+						set resultsizes $testsizes
+						set resultscan $testscan
+						if {($score < 1.5) || (($sstart > 0) && ($score < 5))} {
+							set break 1
+							break
+						}
+					}
+				}
+				if {$break} break
+			}
+			if {$break} break
+		}
+		if {$break || ($resultscore < 5)} break
+	}
+	return $checked
 }
 
 

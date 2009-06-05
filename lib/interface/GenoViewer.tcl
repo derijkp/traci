@@ -204,7 +204,7 @@ GenoViewer method anchor {coords} {
 }
 
 GenoViewer method binclick {{clear {}}} {
-#set object .mainw.grid.graphs.g0
+#set object .mainw.grid.graphframe.graphs.g0
 	private $object options
 	set index $options(-index)
 	set marker $data::active_marker
@@ -323,7 +323,7 @@ proc altercell {index column value} {
 
 GenoViewer method scroller {type {aantal 0}} {
 	private $object options
-	set grid [winfo parent [winfo parent $object]]
+#	set grid [winfo parent [winfo parent $object]]
 	if {[string equal mouseindex $type]} {
 		set type index
 		if {$aantal > 0} {
@@ -339,7 +339,7 @@ GenoViewer method scroller {type {aantal 0}} {
 			set aantal 1
 		}
 	}
-	$grid graphbrowser $type $aantal
+	$::gridW graphbrowser $type $aantal
 }
 
 GenoViewer method Activate {gridwindow} {
@@ -551,7 +551,7 @@ GenoViewer method standardrange {} {
 }
 
 GenoViewer method ShowPeaks {reads} {
-#	set object .mainw.grid.graphs.g0
+#	set object .mainw.grid.graphframe.graphs.g0
 	private $object options
 #	set reads $options(-reads)
 	set colors $options(-colors)
@@ -623,7 +623,7 @@ GenoViewer method ShowHold {} {
 }
 
 GenoViewer method ShowRPeaks {} {
-#	set object .mainw.grid.graphs.g0
+#	set object .mainw.grid.graphframe.graphs.g0
 	if {[string equal $config::default(reference) Disabled]} {return}
 	if {[string equal $data::active_marker unknown]} {return}
 if {![string length [info command ::SX1]]} {
@@ -787,7 +787,7 @@ GenoViewer method refresh {} {
 	set index $options(-index)
 	set hold $options(-hold)
 	set reads $options(-reads)
-#	set object .mainw.grid.graphs.g0
+#	set object .mainw.grid.graphframe.graphs.g0
 	$object clearmarkers *
 	if {[info exist ::data::active_read]} {
 		set active_read $::data::active_read
@@ -831,7 +831,7 @@ GenoViewer method showRanges {} {
 #	--------------------------
 #	show the range of the marker(s) of the selected color - only active in superimpose state
 #	--------------------------
-#	set object .mainw.grid.graphs.g0
+#	set object .mainw.grid.graphframe.graphs.g0
 	private $object options
 	set colors $options(-colors)
 	set assay $data::active_marker
@@ -968,7 +968,7 @@ GenoViewer method showtext {text color font} {
 }
 
 GenoViewer method showBins_maq {} {
-#	set object .mainw.grid.graphs.g0
+#	set object .mainw.grid.graphframe.graphs.g0
 	global binmove
 	if {![info exist binmove]} {set binmove {}}
 	foreach {move_amplicon lmax rmax} [split $binmove ,] break
@@ -1061,7 +1061,7 @@ GenoViewer method showBins_maq {} {
 #}
 
 GenoViewer method getxmax {index min max} {
-#	set object .mainw.grid.graphs.g0
+#	set object .mainw.grid.graphframe.graphs.g0
 	private $object options
 #	set reads $options(-reads)
 

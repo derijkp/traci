@@ -228,24 +228,20 @@ puts recalcDos
 	AQupdate $ids
 }
 
-proc reg_lgvs {} {
-	global LGVs_dir
-	set execs [glob [file join $LGVs_dir .. .. *.exe]]
-	if {[llength $execs]} {
-		# LGVs found
-		set last [lindex [lsort -dictionary $execs] end]
-		set LGVs_exe [file normalize $last]
-	} else {
-		error "$LGVs_exe exec not found"
+proc reg_traci {} {
+	set registered $config::default(registered)
+	if {[string equal [getOS] lin] || ([string length $registered] && [string equal $registered $Classy::appdir])} {
+		return
 	}
-	set icos [glob [file join $LGVs_dir *.ico]]
-	if {[llength $icos]} {
-		set last [lindex [lsort -dictionary $icos] end]
-		set LGVs_ico $last
-	} else {
-		set LGVs_ico ""
+	set execs [glob [file join $Classy::appdir .. .. TracI.exe]]
+	set TracI_exe [file normalize [file join $Classy::appdir .. .. TracI.exe]]
+	regsub -all {/} $TracI_exe {\\} TracI_exe
+	set TracI_ico [file normalize [file join $Classy::appdir $config::default(winlogo)]]
+	if {![file exist $TracI_exe]} {
+		error "Could not found the TracI.exe file at $TracI_exe."
 	}
-	register_filetype .mqs LGVsFile "LGVs file" "application/lgvs" "\"$LGVs_exe\" \"%1\"" "$LGVs_ico 0"
+	register_filetype .tri TracIProject "TracI project" "application/TracI" "\"$TracI_exe\" \"%1\"" "\"$TracI_ico\" 0"
+	set config::default(registered) $Classy::appdir
 }
 
 proc register_filetype {extension class name mime code {icon {}}} {
@@ -280,7 +276,7 @@ proc testassay {assayData} {
 	set aantaltest 1
 	set rangetest 1
 	set colortest 1
-	set assays {}
+	set assayList {}
 	set amplicons {}
 	set header_test {assay amplicon min max type color minmove maxmove}
 	set valid_colors {blue yellow red green}
@@ -328,7 +324,7 @@ proc testassay {assayData} {
 				set ::data::assay($assayname,$amplicon,$col) $value
 			}
 		}
-		lappend assays $assay(assay)
+		if {![inlist $assayList $assayname]} {lappend assayList $assayname}
 		lappend amplicons $assay(amplicon)
 		lappend ::data::amplicons($assay(assay),$assay(type)) $assay(amplicon)
 		lappend ::data::amplicons($assay(assay),all) $assay(amplicon)
@@ -368,10 +364,11 @@ proc testassay {assayData} {
 #		lappend errors "- No controle amplicons found in assay file."
 #	}
 	if {[llength $errors]} {
-		array unset data::assayData
+		array unset assaydata::assayData
+#		array unset data::assayData
 		error "Error(s):\n[join $errors \n]"
 	} else {
-		set assayList [lsort -unique $assays]
+#		set assayList [lsort -unique $assays]
 		set ::data::assayList $assayList
 		set aantalAssays [llength $assayList]
 		set aantalAmplicons [llength [lsort -unique $amplicons]]
@@ -1092,6 +1089,35 @@ proc createcomment {index} {
 	return [list $color $comment]
 }
 
+proc toDefault {name} {
+	global cfgfile
+	# default values from ORIGINAL config file
+	if {[regexp {^standard-(.*)$} $name match size]} {
+		readSettings oriconfig $cfgfile
+		if {[info exist oriconfig::stds(sizes\ ${size})]} {
+			set tempconfig::stds(sizes\ ${size}) [set oriconfig::stds(sizes\ ${size})]
+		}
+		namespace delete oriconfig
+	} else {
+		set check [split $name :]
+		if {[llength $check]} {set name [lindex $check end]}
+		readSettings oriconfig $cfgfile
+		set tempconfig::$name [set oriconfig::${name}]
+		namespace delete oriconfig
+	}
+}
+#proc toDefault {name {save 0}} {
+#	set check [split $name :]
+#	if {[llength $check]} {set name [lindex $check end]}
+#	set cfgfile [file join $Classy::appdir conf Config.txt]
+#        readSettings tempconfig $cfgfile
+#	set config::$name [set tempconfig::${name}]
+#	if {$save} {
+#		saveState
+#	}
+#}
+#
+
 proc splitlist {list} {
 	set means [list]
 	set bins [list]
@@ -1720,10 +1746,24 @@ proc helpButton {} {
 	update_helpButton
 }
 
+#proc update_helpButton {args} {
+#	set button [lindex $args 0]
+#	set state $::config::default(help_state)
+#	set ::config::default(help_state) $state
+#	if {$state} {
+#		Classy::Balloon private time 0
+#		catch {$button configure -relief sunken}
+#	} else {
+#		Classy::Balloon private time 1000000
+#		catch {$button configure -relief raised}
+#	}
+#	return
+#}
 proc update_helpButton {args} {
 	set button [lindex $args 0]
 	set state $::config::default(help_state)
 	set ::config::default(help_state) $state
+	catch {set ::tempconfig::default(help_state) $state}
 	if {$state} {
 		Classy::Balloon private time 0
 		catch {$button configure -relief sunken}
@@ -1731,6 +1771,7 @@ proc update_helpButton {args} {
 		Classy::Balloon private time 1000000
 		catch {$button configure -relief raised}
 	}
+	saveState
 	return
 }
 
@@ -1880,13 +1921,17 @@ proc buildListbox {object} {
 	if {![string length [info command $object]]} {
 		ListBox $object -target $::gridW -marker $data::active_marker
 	}
+	bind  $object <Configure> "keepPos $object %W %h %w %x %y"
 }
 
 proc listboxButton {object} {
 	global listboxplaced
 	buildListbox $object
-	if {![info exist listboxplaced]} {$object place}
-	wm state $object normal
+	if {![info exist listboxplaced] || !$listboxplaced} {
+		setPos $object
+#		wm $object place
+	}
+#	wm state $object normal
 	raise $object
 	set listboxplaced 1
 	wm minsize $object 340 143
@@ -2024,27 +2069,29 @@ proc reload_data {{markerset {}}} {
 	}
 }
 
-proc typeSwitch {var} {
-	if {[info exist ::config::default($var-list)]} {
-		set typelist $::config::default($var-list)
-	} else {
-		set typelist {Enabled Disabled}
-	}
-#	if {![info exist ::config::default($var-list)]} {return}
-#	set typelist $::config::default($var-list)
-	set current $::config::default($var)
-	lappend typelist [lindex $typelist 0]
-	set found 0
-	foreach value $typelist {
-		if {[string equal $value $current]} {
-			set found 1
-			continue
+proc typeSwitch {arrays var} {
+	foreach array $arrays {
+		if {[info exist ::${array}::default($var-list)]} {
+			set typelist [set ::${array}::default($var-list)]
+		} else {
+			set typelist {Enabled Disabled}
 		}
-		if {$found} {
-			break
+		if {![info exist ::${array}::default($var)]} {return}
+		set current [set ::${array}::default($var)]
+		lappend typelist [lindex $typelist 0]
+		set found 0
+		foreach value $typelist {
+			if {[string equal $value $current]} {
+				set found 1
+				continue
+			}
+			if {$found} {
+				break
+			}
 		}
+		# catch settings variable in case namespace tempconfig does not exists (yet)
+		catch {set ::${array}::default($var) $value}
 	}
-	set ::config::default($var) $value
 }
 
 ##########################
@@ -2056,8 +2103,11 @@ proc typeSwitch {var} {
 proc dosButton {object} {
 	global dosplaced
 	buildDosplot $object
-	if {![info exist dosplaced]} {$object place}
-	wm state $object normal
+	if {![info exist dosplaced] || !$dosplaced} {
+		setPos $object
+		$object graphSizer
+	}
+#	wm state $object normal
 	raise $object
 	set dosplaced 1
 	guide
@@ -2067,6 +2117,7 @@ proc buildDosplot {object} {
 	if {![string length [info command $object]]} {
 		Dosviewer $object
 	}
+	bind  $object <Configure> "keepPos $object %W %h %w %x %y"
 	$object showdos
 }
 
@@ -2098,8 +2149,19 @@ proc export_dialog {} {
 	grid $w.radiod -pady 1 -row 5 -sticky w -columnspan 2
 	grid $w.radioas -pady 1 -row 6 -sticky w -columnspan 2
 #	grid $w.radioa -pady 1 -row 6 -sticky w -columnspan 2
-	Classy::todo $tw place
+	centerWindow $tw $::mainW
+#	Classy::todo $tw place
 	guide
+}
+
+proc getOS {} {
+	set homedir $::env(HOME)
+	if {[regexp {^([A-z]+):} $homedir match]} {
+		set os win
+	} else {
+		set os lin
+	}
+	return $os
 }
 
 proc getMAC {} {
@@ -2466,6 +2528,15 @@ proc decryptSimple {text {key {}}} {
 	return $data
 }
 
+proc setDemoDir {} {
+	if {![string length $::config::default(datadir)]} {
+		set ::config::default(datadir) [file join $Classy::appdir .. .. DemoFiles DataDir]
+	}
+	if {![string length $::config::default(assaydir)]} {
+		set ::config::default(assaydir) [file join $Classy::appdir .. .. DemoFiles AssayDir]
+	}
+}
+
 proc createKey {} {
 	set error 0
 	if {[catch {getMAC} keys]} {
@@ -2495,6 +2566,93 @@ proc createKey {} {
 	}
 	guide
 }
+
+##########################
+#
+# Positioning of windows procs
+#
+##########################
+
+proc keepPos {test window height width x y} {
+	set testw [winfo toplevel $window]
+	if {![string equal $testw $window]} {return}
+	set dim [getScreen]
+	if {![info exist ::keepPos] || !$::keepPos} {return}
+	set pos [split [wm geometry $window] "x+"]
+	set state [wm state $window]
+	if {![string equal iconic $state]} {
+		# remember every state, except iconic
+		set config::positions($dim,$window,state) $state
+	}
+	if {[string equal normal $state]} {
+		# only if state is normal, remember its position
+		set config::positions($dim,$window) $pos
+	}
+}
+
+proc getScreen {} {
+	set width [winfo screenwidth .]
+	set height [winfo screenheight .]
+	return ${width}x${height}
+}
+
+proc setPos {window} {
+	set dim [getScreen]
+	if {[info exist config::positions($dim,$window)]} {
+		foreach {w h x y} $config::positions($dim,$window) break
+#		set current [wm geometry $window]
+#		update
+#		set ch [winfo reqheight $window]
+#		set cw [winfo reqwidth $window]
+#		if {$cw > $w} {set w $cw}
+#		if {$ch > $h} {set h $ch}
+		wm geometry $window ${w}x${h}+${x}+${y}
+	}
+	update
+	if {[info exist config::positions($dim,$window,state)] && [string equal zoomed $config::positions($dim,$window,state)]} {
+		wm state $window $config::positions($dim,$window,state)
+	} else {
+		wm deiconify $window
+	}
+}
+
+proc centerWindow {current parent} {
+#puts centerWindow-$current
+	set parent [checkParent $parent]
+	wm withdraw $current
+	update
+	set pos [wm geometry $parent]
+	set state [wm state $parent]
+	foreach {w h x y} [split $pos "x+"] break
+	if {[string equal $state zoomed]} {
+		# only for Windows OS:
+		# the corners of full screen windows are not changed to +0+0 (unlike in Linux)
+		# so, lets set them to 0 ourselves
+		set x 0
+		set y 0
+	}
+	set midx_parent [expr round($x + ($w/2))]
+	set midy_parent [expr round($y + ($h/2))]
+	wm geometry $current +0+0
+	update
+	set pos [wm geometry $current]
+	foreach {w h x y} [split $pos "x+"] break
+	set midx_current [expr round($w/2)]
+	set midy_current [expr round($h/2)]
+	set xcorner [expr $midx_parent-$midx_current]
+	set ycorner [expr $midy_parent-$midy_current]
+	wm geometry $current +${xcorner}+${ycorner}
+	wm deiconify $current
+}
+
+proc checkParent {parent} {
+	if {![string length [info command $parent]]} {
+		return $::mainW
+	} else {
+		return $parent
+	}
+}
+
 
 
 if {0} {

@@ -5,6 +5,74 @@ proc addLogo {object} {
 	}
 }
 
+proc refreshIcons {} {
+	initIcons
+	set frame0 .mainw.row0
+	set frame1 .mainw.row1
+	$frame0.selector configure -image $::Open
+	$frame0.save configure -image $::Save
+	$frame0.listbox configure -image $::ListBox
+	$frame0.settings configure -image $::Configure
+#	$frame0.export configure -image $::Print
+	$frame0.help configure -image $::Help
+	set buttons {selector save listbox settings help}
+	grid forget $frame0
+	grid forget $frame1
+	if {[string equal $::config::default(useicons) Disabled]} {
+		grid $frame0 -in $::mainW -row 0
+		grid $frame1 -in $::mainW -row 1
+		grid $::markerbarW -in $frame1 -row 1
+		update
+		grid $::markerbarW -in $frame1 -row 1
+	} else {
+		grid $::markerbarW -in $::mainW -row 1 -column 0
+		grid $frame0 -in $::mainW -row 0 -column 0
+		set colnr 0
+		foreach button $buttons {
+			grid columnconfigure $frame0 $colnr -pad 2
+			incr colnr
+		}
+		grid $::markerbarW -in $frame0 -row 0 -column 6
+		grid $frame0.help -column 10 -row 0
+		grid columnconfigure $frame0 10 -pad 3
+	}
+}
+
+proc initIcons {} {
+	set iconsdir [file join $Classy::appdir conf icons]
+	set size {}
+	set ::pointerImg [image create photo -file [file join $iconsdir pointer5.gif]]
+#	set ::grid [image create photo -file [file join $iconsdir Grid2.gif]]
+	set ::grid [image create photo -file [file join $iconsdir changeGrid.gif]]
+	set ::arrowdd2 [image create photo -file [file join $iconsdir Arrowdd2.gif]]
+	set ::arrowll2 [image create photo -file [file join $iconsdir Arrowll2.gif]]
+	set ::arrowld2 [image create photo -file [file join $iconsdir Arrowld2.gif]]
+	set ::arrowlu2 [image create photo -file [file join $iconsdir Arrowlu2.gif]]
+	set ::arrowrd2 [image create photo -file [file join $iconsdir Arrowrd2.gif]]
+	set ::arrowrr2 [image create photo -file [file join $iconsdir Arrowrr2.gif]]
+	set ::arrowru2 [image create photo -file [file join $iconsdir Arrowru2.gif]]
+	set ::arrowuu2 [image create photo -file [file join $iconsdir Arrowuu2.gif]]
+	if {![string equal $::config::default(useicons) Enabled]} {
+		set ::Open {}
+		set ::Save {}
+		set ::Configure {}
+		set ::ListBox {}
+		set ::DosPlot {}
+		set ::Print {}
+		set ::Help {}
+	} else {
+		set ::Open [image create photo -file [file join $iconsdir fileopen$size.gif]]
+#		set ::Print [image create photo -file [file join $iconsdir fileprint$size.gif]]
+		set ::Print [image create photo -file [file join $iconsdir export.gif]]
+		set ::Save [image create photo -file [file join $iconsdir filesave$size.gif]]
+		set ::Configure [image create photo -file [file join $iconsdir configure$size.gif]]
+		set ::ListBox [image create photo -file [file join $iconsdir ListBox$size.gif]]
+		set ::DosPlot [image create photo -file [file join $iconsdir DosPlot$size.gif]]
+		set ::Help [image create photo -file [file join $iconsdir help.gif]]
+	}
+}
+
+
 proc main args {
 	global argv bar cfgfile userfile app_dir
 	set keys {exp}
@@ -21,18 +89,18 @@ proc main args {
 		set ::exp {}
 	}
 	set ::local 0
-	set ::version 1.0.5
+	set ::version 1.1.0b
 	namespace eval config {}
 	set cfgfile [file join $Classy::appdir conf Config.txt]
 	if {[file exist $cfgfile]} {
 		namespace eval config {}
-	        readSettings $cfgfile
+	        readSettings config $cfgfile
 	} else {
 	        error "Default config file not found"
 	}
 	set userfile [file join $::Classy::dira(appuser) UserConfig.txt]
 	if {[file exist $userfile]} {
-	        readSettings $userfile
+	        readSettings config $userfile
 	}
 	set infofile [file join $Classy::appdir conf help.txt]
 	if {[file exist $infofile]} {
@@ -61,7 +129,9 @@ proc main args {
 	Classy::Balloon private time 1000000
 	set mainW [mainw .mainw]
 	buildbar $mainW
-	bind  $mainW <Configure> "Classy::todo updatebar"
+	setPos $mainW
+	bind  $mainW <Configure> "Classy::todo updatebar;keepPos .mainw %W %h %w %x %y"
+#	bind  $mainW <Configure> "Classy::todo updatebar"
 #	bind  $mainW <MouseWheel> [list $mainW graphbrowser index %D]
 #	bind  $mainW <Control-MouseWheel> [list $mainW graphbrowser page %D]
 #	bind  $mainW <Key-Up> [list $mainW graphbrowser index -1]
@@ -81,25 +151,34 @@ proc main args {
 	guide
 	raise $mainW
 	focus $mainW
+	if {[regexp {.tri$|tri\}} [lindex $argv 0]]} {
+		openProject [lindex $argv 0]
+	}
 }
 
-proc readSettings {file {array_only {}}} {
+proc readSettings {namespace file {skip 0}} {
+	namespace eval $namespace {}
 	set src [open $file]
 	set inarray 0
 	set invar 0
+	set skips {}
+	if {$skip} {
+		set skips {temp columns_sel}
+	}
 	while {![eof $src]} {
 		set line [gets $src]
 		regsub {^\}} $line {} line
 		if {[regexp {^var ([^ ]+)} $line match varname]} {
-			set inarray 0
-			set invar 1
-#			foreach {var varname value} $line break
-#			set $varname $value
+			set varname [lindex [split $varname :] end]
+			if {![inlist $skips $varname]} {
+				set inarray 0
+				set invar 1
+			}
 		} elseif {[regexp {^array ([^ ]+)} $line match arrayname]} {
-			if {![string length $array_only] || [string equal $arrayname $array_only] } {
+			set arrayname [lindex [split $arrayname :] end]
+			if {![inlist $skips $arrayname]} {
 				set inarray 1
 			}
-#			foreach {null arrayname} $line break
 		} else {
 			if {![llength $line]} {
 				set inarray 0
@@ -108,13 +187,13 @@ proc readSettings {file {array_only {}}} {
 			if {[llength $line] == 1 && $invar} {
 				set inarray 0
 				foreach {value} $line break
-				lappend $varname $value
+				lappend ${namespace}::$varname $value
 			}
 			if {$inarray} {
 				set invar 0
-#				foreach {name value} $line break
-#				set ${arrayname}($name) $value
-array set ${arrayname} $line
+				if {[catch {array set ${namespace}::${arrayname} $line} error]} {
+					puts $line--$error
+				}
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-#!/home/boris/bin/tca/tclsh8.4
+#!/home/boris/darcs/tca/Linux-i686/tclsh8.4
 # the next line restarts using tclsh \
 exec tclsh "$0" "$@"
 
@@ -19,7 +19,7 @@ set shareddatafiles {}
 set headers {}
 set libbinaries {}
 set binaries {}
-set version 1.0.5
+set version 1.1.0b
 
 # standard
 # --------

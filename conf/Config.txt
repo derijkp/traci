@@ -4,12 +4,12 @@
 #
 ############################
 
-array config::grid {
+array grid {
 	columns 1
 	rows 1
 }
 
-var config::columns_sel {
+var columns_sel {
 	index
 	Act
 	ILS
@@ -23,7 +23,7 @@ var config::columns_sel {
 	chromatogram
 }
 
-array config::dyecolor {
+array dyecolor {
 	blue blue
 	green SpringGreen4
 	red red
@@ -36,7 +36,7 @@ array config::dyecolor {
 	inv_orange black
 }
 
-array config::bincolor {
+array bincolor {
 	match #60dff8
 	smatch #79afdb
 	nomatch #ffaeb8
@@ -50,7 +50,7 @@ array config::bincolor {
 	badcontrol gray90
 }
 
-array config::color {
+array color {
 	score #60dff8
 	goodtest #fffa61
 	badtest #fffa61
@@ -80,7 +80,7 @@ array config::color {
 	reference_line gray80
 }
 
-array config::checkbutton {
+array checkbutton {
 	addarea 0
 	addheight 0
 	intradetails 0
@@ -91,7 +91,7 @@ array config::checkbutton {
 	dostest 1
 }
 
-array config::color {
+array color {
 	red-area blue
 	goodtest #fffa61
 	yellow-area red
@@ -121,7 +121,7 @@ array config::color {
 	overlayHold grey
 }
 
-array config::colname {
+array colname {
 	label Label
 	index Index
 	q Q
@@ -137,27 +137,41 @@ array config::colname {
 	machine Machine
 }
 
-var config::patternlist {
+var patternlist {
 	"All"
 }
 
-array config::font {
+array font {
 	label_font {arial 8 {normal roman}}
 	binname {arial 6 {normal roman}}
 }
 
-array config::stds {
+array stds {
+	{sizes GS600LIZ_3730} {60 80 100 114 120 140 160 180 200 214 220 240 250 260 280 300 314 320 340 360 380 400 414 420 440 460 480 500 514 520 540 560 580 600}
+	{sizes GS500(-250)} {50 75 100 139 150 160 200 300 340 350 400 450 490 500}
+	{sizes {GS500 ROX}} {35 50 75 100 139 150 160 200 300 340 350 400 450 490 500}
 }
 
-array config::settings {
+array settings {
 }
-array config::temp {
+
+array temp {
 	pattern All
+	editstate 0
+	patternlist All
+	ip {143.169.30.70}
+	url {soft/TracI-version}
 }
 
-array config::default {
-	ip {143.169.30.70}
-	url {tech/TracI-version}
+array positions {
+}
+
+array default {
+	useicons Disabled
+	activateAll Disabled
+	changeILS Disabled
+	ILScutoff 2000
+	registered {}
 	showtype Dosage
 	min_height 750
 	alignwindow 0.3

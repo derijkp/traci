@@ -60,12 +60,15 @@ MarkerBar method init {args} {
 	button $object.superimp -text SI -command [list $::gridW superimpButton]
 	balloon $object.superimp markerbar,superimp
 	if {$args != ""} {eval $object configure $args}
+	button $object.editGraph -text G -command [list $::gridW pushEdit $object.editGraph] -relief raised -image $::grid
+	balloon $object.editGraph markerbar,editGraph
 	grid $object.marker -column 0 -row 0
 	grid $object.zoom -column 1 -row 0
 	grid $object.superimp -column 2 -row 0
-	grid $object.xrange -column 3 -row 0
-	grid $object.yrange -column 4 -row 0
-	grid $object.colors -column 5 -row 0
+	grid $object.editGraph -column 3 -row 0
+	grid $object.xrange -column 4 -row 0
+	grid $object.yrange -column 5 -row 0
+	grid $object.colors -column 6 -row 0
 	bind $object <x> "focus $object.xrange.min"
 	bind $object <y> "focus $object.yrange.min"
 	if {$args != ""} {eval $object configure $args}
@@ -163,6 +166,7 @@ MarkerBar method activate_marker {marker} {
 		incr pos 2
 	}
 	set ::data::active_datalist [lsort -real -index $::data::column(index) $::data::active_datalist]
+	if {![llength $data::active_genos] || [string equal $config::default(activateAll) Enabled]} {updateActive_genos}
 	private $object options
 	set newlist {}
 	set parts {}
@@ -191,6 +195,22 @@ MarkerBar method activate_marker {marker} {
 	catch {$::listboxW configure -marker $marker}
 	$::gridW configure -pattern All
 	Classy::busy remove
+}
+
+proc updateActive_genos {} {
+	set newlist {}
+	set parts {}
+	array unset ::data::part
+	set partcol $::data::column(part)
+	set indexcol $::data::column(index)
+	foreach line $::data::active_datalist {
+		set index [lindex $line $indexcol]
+		set part [lindex $line $partcol]
+		lappend parts $part
+		lappend ::data::part($::data::active_marker,$part) $index
+		lappend newlist $index
+	}
+	set ::data::active_genos $newlist
 }
 
 MarkerBar method marker_select {type} {

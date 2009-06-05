@@ -410,6 +410,21 @@ for the latest update available and prompt the user
 if one is available.
 }
 
+settings,useicons {
+Using icons instead of buttons will save you
+some window space, but they are harder to see
+;)
+}
+
+settings,changeILS {
+Next time when opening an fsa file, select again which
+sizes to use for the internal lane standard or ILS.
+}
+
+settings,todefault {
+Pushing this button will set default values.
+}
+
 settings,showstandard {
 If enabled, the application will show wich ranges
 are not supported with the internal lane standard

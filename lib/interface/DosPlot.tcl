@@ -94,6 +94,11 @@ Dosviewer addoption -first {first First 0} {
 	Classy::todo $object updateActive [expr $value + $active]
 }
 
+Dosviewer method exit {} {
+	set ::dosplaced 0
+	wm state $object withdrawn
+}
+
 Dosviewer method refresh {} {
 	$object showdos
 	$object.g configure -plotbackground $::config::color(dos_bg)

@@ -5,25 +5,79 @@ Grid method init {args} {
 	global tca_roles tca_role
 	super init
 	private $object options
+#	if {$args != ""} {eval $object configure $args}
+	# build framework around graph + scrollbar fram
+	button $object.lu -command "$object gridincr rows -1;$object gridincr columns -1" -image $::arrowlu2
+	button $object.uu -command "$object gridincr rows -1" -image $::arrowuu2
+	button $object.ru -command "$object gridincr rows -1;$object gridincr columns +1" -image $::arrowru2
+
+	button $object.ll -command [list $object gridincr columns -1] -image $::arrowll2
+	button $object.rr -command [list $object gridincr columns +1] -image $::arrowrr2
+
+	button $object.ld -command "$object gridincr rows +1;$object gridincr columns -1" -image $::arrowld2
+	button $object.dd -command "$object gridincr rows +1" -image $::arrowdd2
+	button $object.rd -command "$object gridincr rows +1;$object gridincr columns +1" -image $::arrowrd2
+
 	# graphs within .grid.graph
-	frame $object.graphs -highlightthickness 0
-	if {$args != ""} {eval $object configure $args}
-	# text beneath graphs
-	scrollbar $object.scroll -command [list $object graphscroll] -orient horizontal
-	balloon $object.scroll grid,scroll
-	grid $object.graphs -sticky nwse -column 0 -row 1
-	grid $object.scroll -sticky ew -column 0 -row 2
-	grid rowconfigure $object 0 -weight 0
+	set graphframe [frame $object.graphframe -borderwidth 0 -highlightthickness 0]
+	grid $graphframe -row 1 -column 1 -sticky nwse
+	grid rowconfigure $graphframe 0 -weight 1
+	grid columnconfigure $graphframe 0 -weight 1
+	frame $graphframe.graphs -highlightthickness 0 -borderwidth 0
+
+	balloon $graphframe.graphs genoviewer,main
+
+	array set ::gridArrows [subst {
+		lu "-in $object -column 0 -row 0 -columnspan 1 -rowspan 1 -ipadx 0 -ipady 0 -padx 0 -pady 0 -sticky nesw"
+		uu "-in $object -column 1 -row 0 -columnspan 1 -rowspan 1 -ipadx 0 -ipady 0 -padx 0 -pady 0 -sticky nesw"
+		ru "-in $object -column 2 -row 0 -columnspan 1 -rowspan 1 -ipadx 0 -ipady 0 -padx 0 -pady 0 -sticky nesw"
+		ll "-in $object -column 0 -row 1 -columnspan 1 -rowspan 1 -ipadx 0 -ipady 0 -padx 0 -pady 0 -sticky nesw"
+		rr "-in $object -column 2 -row 1 -columnspan 1 -rowspan 1 -ipadx 0 -ipady 0 -padx 0 -pady 0 -sticky nesw"
+		ld "-in $object -column 0 -row 2 -columnspan 1 -rowspan 1 -ipadx 0 -ipady 0 -padx 0 -pady 0 -sticky nesw"
+		dd "-in $object -column 1 -row 2 -columnspan 1 -rowspan 1 -ipadx 0 -ipady 0 -padx 0 -pady 0 -sticky nesw"
+		rd "-in $object -column 2 -row 2 -columnspan 1 -rowspan 1 -ipadx 0 -ipady 0 -padx 0 -pady 0 -sticky nesw"
+	}]
+
+	# scrollbar beneath graphs
+	scrollbar $graphframe.scroll -command [list $object graphscroll] -orient horizontal
+	balloon $graphframe.scroll grid,scroll
+
+	grid $graphframe.graphs -sticky nwse -column 0 -row 0
+	grid $graphframe.scroll -sticky ew -column 0 -row 1
+
 	grid rowconfigure $object 1 -weight 1
-	grid rowconfigure $object 2 -weight 0
-	grid columnconfigure $object 0 -weight 1
+	grid columnconfigure $object 1 -weight 1
 	bind $object <MouseWheel> [list $object graphbrowser index %D]
 	bind $object <Control-MouseWheel> [list $object graphbrowser page %D]
 	bind $object <ButtonPress-4> [list $object graphbrowser index -1]
 	bind $object <ButtonPress-5> [list $object graphbrowser index 1]
+
+	if {$args != ""} {eval $object configure $args}
 	Classy::todo $object refresh
 }
-
+#Grid method init {args} {
+#	global tca_roles tca_role
+#	super init
+#	private $object options
+#	# graphs within .grid.graph
+#	frame $object.graphs -highlightthickness 0
+#	if {$args != ""} {eval $object configure $args}
+#	# text beneath graphs
+#	scrollbar $object.scroll -command [list $object graphscroll] -orient horizontal
+#	balloon $object.scroll grid,scroll
+#	grid $object.graphs -sticky nwse -column 0 -row 1
+#	grid $object.scroll -sticky ew -column 0 -row 2
+#	grid rowconfigure $object 0 -weight 0
+#	grid rowconfigure $object 1 -weight 1
+#	grid rowconfigure $object 2 -weight 0
+#	grid columnconfigure $object 0 -weight 1
+#	bind $object <MouseWheel> [list $object graphbrowser index %D]
+#	bind $object <Control-MouseWheel> [list $object graphbrowser page %D]
+#	bind $object <ButtonPress-4> [list $object graphbrowser index -1]
+#	bind $object <ButtonPress-5> [list $object graphbrowser index 1]
+#	Classy::todo $object refresh
+#}
+#
 Grid addoption -columns {columns Columns {1}} {
 	Classy::todo $object refresh
 }
@@ -84,6 +138,37 @@ Grid addoption -defcolor {defcolors Defcolors {}} {
 	Classy::todo $object refresh
 }
 
+Grid addoption -editstate {editState EditState {}} {
+	Classy::todo $object gridEdit
+}
+
+Grid method pushEdit {button} {
+	set state $::config::temp(editstate)
+	if {$state} {
+		set newstate 0
+		$button configure -relief raised
+	} else {
+		set newstate 1
+		$button configure -relief sunken
+	}
+	set ::config::temp(editstate) $newstate
+	$object configure -editstate $newstate
+}
+
+Grid method gridEdit {} {
+	set state $::config::temp(editstate)
+	if {$state} {
+		foreach type [array names ::gridArrows] {
+			set value $::gridArrows($type)
+			eval grid $object.$type $value
+		}
+	} else {
+		foreach type [array names ::gridArrows] {
+			grid forget $object.$type
+		}
+	}
+}
+
 Grid method gridincr {type nr} {
 	private $object options
 	set newvalue [expr $options(-$type) + $nr]
@@ -128,19 +213,19 @@ puts refresh_grid
 	set nr 0
 	for {set col 0} {$col<$columns} {incr col} {
 		for {set row 0} {$row<$rows} {incr row} {
-			if {![string length [info command $object.graphs.g$nr]]} {
-				GenoViewer $object.graphs.g$nr
+			if {![string length [info command $object.graphframe.graphs.g$nr]]} {
+				GenoViewer $object.graphframe.graphs.g$nr
 			}
-			grid $object.graphs.g$nr -row $row -column $col -sticky nwse
-			grid rowconfigure $object.graphs $row -weight 1
-			grid columnconfigure $object.graphs $col -weight 1
+			grid $object.graphframe.graphs.g$nr -row $row -column $col -sticky nwse
+			grid rowconfigure $object.graphframe.graphs $row -weight 1
+			grid columnconfigure $object.graphframe.graphs $col -weight 1
 			incr nr
 		}
 	}
 	set usedcolumns ""
 	set usedrows ""
 	set graphs ""
-	set used_graphs [winfo children $object.graphs]
+	set used_graphs [winfo children $object.graphframe.graphs]
 	foreach graph $used_graphs {
 		if {[regexp {[0-9]+$} $graph match] && $match > [expr ($columns * $rows)-1]} {
 			set info [grid info $graph]
@@ -158,12 +243,12 @@ puts refresh_grid
 	}
 	foreach row $usedrows {
 		if {$row > [expr $rows -1]} {
-			grid rowconfigure $object.graphs $row -weight 0
+			grid rowconfigure $object.graphframe.graphs $row -weight 0
 		}
 	}
 	foreach col $usedcolumns {
 		if {$col > [expr $columns -1]} {
-			grid columnconfigure $object.graphs $col -weight 0
+			grid columnconfigure $object.graphframe.graphs $col -weight 0
 		}
 	}
 	$object draw
@@ -194,10 +279,10 @@ Grid method draw {{type {}}} {
 			if {![inlist $readlist $read]} {lappend readlist $read}
 			if {![inlist $genolist $geno]} {lappend genolist $geno}
 		}
-		$object.graphs.g0 configure -reads $readlist -index $genolist -pattern $pattern -xrange $options(-xrange) -yrange $options(-yrange) -defcolor $options(-defcolor) -colors $options(-colors) -si 1
+		$object.graphframe.graphs.g0 configure -reads $readlist -index $genolist -pattern $pattern -xrange $options(-xrange) -yrange $options(-yrange) -defcolor $options(-defcolor) -colors $options(-colors) -si 1
 		set gridnr 1
 		while {$gridnr < [expr $cols * $rows]} {
-			$object.graphs.g$gridnr configure -reads {} -index {}
+			$object.graphframe.graphs.g$gridnr configure -reads {} -index {}
 			incr gridnr
 		}
 	} else {
@@ -206,9 +291,9 @@ Grid method draw {{type {}}} {
 			set genotype [lindex $data::active_genos [expr $genos_pos + $gridnr]]
 			foreach {read exp part} [fetchVal $genotype {gs_read experiment part}] break
 			if {[string length $genotype]} {
-				$object.graphs.g$gridnr configure -reads $read -index $genotype -pattern $pattern -xrange $options(-xrange) -yrange $options(-yrange) -defcolor $options(-defcolor) -colors $options(-colors) -si 0
+				$object.graphframe.graphs.g$gridnr configure -reads $read -index $genotype -pattern $pattern -xrange $options(-xrange) -yrange $options(-yrange) -defcolor $options(-defcolor) -colors $options(-colors) -si 0
 			} else {
-				$object.graphs.g$gridnr configure -reads {} -index {} -si 0
+				$object.graphframe.graphs.g$gridnr configure -reads {} -index {} -si 0
 			}
 			incr gridnr
 		}
@@ -216,9 +301,9 @@ Grid method draw {{type {}}} {
 	# scrollbar
 	set length [llength $::data::active_genos]
 	if {$length < 1} {
-		$object.scroll set 0 1
+		$object.graphframe.scroll set 0 1
 	} else {
-		$object.scroll set [expr $first / double($length)] [expr ($first + ($cols * $rows)) / double($length)]
+		$object.graphframe.scroll set [expr $first / double($length)] [expr ($first + ($cols * $rows)) / double($length)]
 	}
 }
 

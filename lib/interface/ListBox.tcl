@@ -102,6 +102,7 @@ balloon $fr.export listbox,export
 	bind $top <Key-Down> [list $::genoviewerW.g0 scroller index 1]
 	if {$args != ""} {eval $object configure $args}
 	wm protocol $object WM_DELETE_WINDOW [list $object exit]\;return
+#	centerWindow $tw $::listboxW
 	Classy::canceltodo $object place
 }
 
@@ -155,6 +156,12 @@ ListBox addoption -active {active Active {}} {
 ListBox addoption -pattern {pattern Pattern {}} {
 	Classy::todo $object updateMeanH
 	Classy::todo $object updatePattern
+}
+
+ListBox method exit {} {
+	set ::listboxplaced 0
+	wm state $object withdrawn
+	guide
 }
 
 ListBox method updateLayout {marker} {
@@ -471,6 +478,7 @@ ListBox method update_checkbox {} {
 			set image $uncheckedImg
 		}
 		if {$pos>=0} {
+			update idletask
 			$tbl cellconfigure $line,$pos -image $image
 		}
 		incr line
@@ -551,7 +559,10 @@ ListBox method showLine {} {
 
 ListBox method empty {} {
 	set tbl $object.t
-	$tbl delete 0 end
+	if {[string length [info command $tbl]]} {
+		$tbl delete 0 end
+	}
+	update idletask
 }
 
 ListBox method sort {{column {}}} {
